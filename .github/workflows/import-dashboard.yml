@@ -29,11 +29,19 @@ jobs:
               print('Layout already imported.')
               raise SystemExit(0)
           bundle = json.loads(source.read_text())
+          parts = []
+          decoded = {}
           for name in ('index.html', 'dashboard.css'):
               entry = bundle[name]
-              content = gzip.decompress(base64.b64decode(entry['gzip_base64']))
+              parts.extend(entry.get('parts', []))
+              payload = entry.get('gzip_base64') or ''.join(Path(p).read_text().strip() for p in entry['parts'])
+              content = gzip.decompress(base64.b64decode(payload, validate=True))
               assert hashlib.sha256(content).hexdigest() == entry['sha256'], name
+              decoded[name] = content
+          for name, content in decoded.items():
               Path(name).write_bytes(content)
+          for part in parts:
+              Path(part).unlink()
           source.unlink()
           PY
       - name: Vendor the pinned Supabase SDK
