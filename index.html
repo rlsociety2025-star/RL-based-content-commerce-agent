@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://hfqqqetcjbkptipqhskx.supabase.co wss://hfqqqetcjbkptipqhskx.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<meta content="off" http-equiv="x-dns-prefetch-control"/>
+<!-- Offline edition: all styles, icons, data and interaction code are inline. No bundled fonts or external resources. -->
+<meta content="light" name="color-scheme"/><meta content="RL 기반 콘텐츠 커머스 최적화 에이전트의 킥오프, 3-Pair 역할 분담, WBS 대시보드" name="description"/>
+<title>콘텐츠 커머스 · 팀 공용 대시보드</title>
+
+<meta content="no-referrer" name="referrer"/><link href="./dashboard.css" rel="stylesheet"/><script defer="" src="./vendor/supabase.js"></script><script defer="" src="./dashboard.js"></script></head>
+<body><noscript>탭과 로그인 기능을 사용하려면 JavaScript를 허용해 주세요.</noscript>
+<a class="skip-link" href="#main">본문으로 바로가기</a>
+<aside aria-label="프로젝트 탐색" class="sidebar">
+<div class="brand"><div aria-hidden="true" class="brand-symbol"><span></span><span></span><span></span></div><div>CONTENT<br/><strong>COMMERCE<span class="brand-dot">.</span></strong></div></div>
+<div class="workspace-chip"><span class="project-avatar">C</span><div>Commerce Agent<small>Seminar project workspace</small></div><span class="workspace-chevron">⌄</span></div>
+<div class="nav-caption">WORKSPACE</div><nav class="sidebar-nav"><button class="nav-btn active" data-tab="tab-overview" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><rect height="7" rx="1.5" width="7" x="3" y="3"></rect><rect height="7" rx="1.5" width="7" x="14" y="3"></rect><rect height="7" rx="1.5" width="7" x="3" y="14"></rect><rect height="7" rx="1.5" width="7" x="14" y="14"></rect></svg><span>프로젝트 개요<small>Kick-off Overview</small></span><em>01</em></button><button class="nav-btn" data-tab="tab-pairs" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path><circle cx="9" cy="7" r="4"></circle></svg><span>역할과 협업<small>3-Pair Team</small></span><em>02</em></button><button class="nav-btn" data-tab="tab-wbs" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="5"></rect><path d="M16 3v4M8 3v4M3 11h18m-13 5h2m4 0h2"></path></svg><span>일정과 산출물<small>WBS · Proposal→Demo</small></span><em>03</em></button></nav>
+<div class="nav-caption on-page-label">ON THIS PAGE</div><nav aria-label="현재 탭 목차" class="section-nav" id="section-nav"></nav>
+<div class="sidebar-bottom"><div aria-label="6인 팀" class="team-avatars"><i>A</i><i>B</i><i>C</i><i>D</i><i>E</i><i>F</i></div><div class="team-meta"><b>6 members</b><span>3 paired teams</span></div><div class="sidebar-foot">학습하는 콘텐츠 커머스 에이전트<br/><span>PROJECT DASHBOARD · 2026–27</span></div></div>
+</aside>
+<div class="app-main">
+<div class="topbar"><div class="breadcrumb"><span>Graduate Seminar</span><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"></path></svg><strong id="breadcrumb-current">Project overview</strong></div><div class="top-actions"><span class="sync-indicator" id="sync-indicator" title="Supabase 공유 상태"><i></i><span id="sync-label">로그인 필요</span></span><span class="save-state" id="save-state">공개 계획 보기 · 읽기 전용</span><button class="auth-button" id="auth-button" title="팀 로그인" type="button"><span id="auth-label">로그인</span></button><button aria-label="연결·권한 안내" class="settings-button" id="settings-button" title="연결·권한 안내" type="button"><span>연결 설정</span></button><button aria-label="전체 화면 전환" class="icon-button" id="presentation-btn" title="전체 화면" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"></path></svg></button><button aria-label="전체 탭 인쇄" class="icon-button print-trigger" title="전체 탭 인쇄" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 17H3V9h18v8h-3M6 14h12v7H6zM17 12h1"></path></svg></button><button class="export-btn" id="export-btn" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"></path></svg><span>읽기 전용 백업</span></button></div></div>
+<header class="hero"><div class="hero-copy"><div class="hero-kicker"><span class="live-dot"></span> PROJECT KICK-OFF <i>/</i> RL × GENERATIVE AI</div><h1>RL 기반 콘텐츠 커머스<br/><span>최적화 에이전트</span></h1><p class="subtitle">“어떤 글에 어떤 상품을 어떤시간에 붙여야 더 잘 팔리는지 AI가 학습해주는 서비스”</p></div><div class="hero-milestones"><div class="overline">KEY DELIVERABLES</div><div class="hero-date"><span class="date-icon"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7l-5-5Zm0 0v5h5M8 12h8m-8 4h6"></path></svg></span><div><span>Proposal v1.0</span><b>2026.11.30</b></div><span class="date-tag">제안서</span></div><div class="hero-date"><span class="date-icon green"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8l10-5Zm-9 10 9 5 9-5m-18 5 9 5 9-5"></path></svg></span><div><span>Demo v1.0</span><b>2027.02.28</b></div><span class="date-tag">데모</span></div></div></header>
+<div class="tabs-wrap"><div aria-label="대시보드 탭" class="tabs" role="tablist"><button aria-controls="tab-overview" aria-selected="true" class="tab-btn active" data-tab="tab-overview" id="nav-tab-overview" role="tab" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><rect height="7" rx="1.5" width="7" x="3" y="3"></rect><rect height="7" rx="1.5" width="7" x="14" y="3"></rect><rect height="7" rx="1.5" width="7" x="3" y="14"></rect><rect height="7" rx="1.5" width="7" x="14" y="14"></rect></svg><span>Kick-off Overview</span><em>06</em></button><button aria-controls="tab-pairs" aria-selected="false" class="tab-btn" data-tab="tab-pairs" id="nav-tab-pairs" role="tab" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path><circle cx="9" cy="7" r="4"></circle></svg><span>3-Pair Team</span><em>03</em></button><button aria-controls="tab-wbs" aria-selected="false" class="tab-btn" data-tab="tab-wbs" id="nav-tab-wbs" role="tab" type="button"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="5"></rect><path d="M16 3v4M8 3v4M3 11h18m-13 5h2m4 0h2"></path></svg><span>WBS · Proposal→Demo</span><em>10</em></button></div><div class="tab-note">6 MEMBERS <span>·</span> 3 PAIRS</div></div>
+<main id="main"><div class="access-banner" id="access-banner" role="status"><div><b id="access-title">공개 계획 보기</b><span id="access-message">공용 담당자·진행률은 로그인과 운영자 승인 후 확인할 수 있습니다.</span></div><button id="access-action" type="button">로그인 / 가입</button></div><div aria-labelledby="nav-tab-overview" class="tab-pane active" id="tab-overview" role="tabpanel" tabindex="0">
+<section class="grid grid4"><div class="card kpi metric-card"><div class="metric-icon" data-ui="true"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg></div><div class="label">PROJECT GOAL</div><div class="value">콘텐츠 → 상품 → 전환 최적화</div><div class="hint">클릭·구매·수익을 학습하는 피드백 루프</div></div><div class="card kpi metric-card"><div class="metric-icon" data-ui="true"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div><div class="label">MVP TARGET</div><div class="value">2027년 2월 말 데모 완성</div><div class="hint">11월 제안서 → 12월 모듈 개발 → 1월 통합 → 2월 실증·데모</div></div><div class="card kpi metric-card"><div class="metric-icon" data-ui="true"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M12 4v16m0-14c-3-5-8-1-6 3-4 1-4 6 0 7-1 4 4 7 6 3m0-13c3-5 8-1 6 3 4 1 4 6 0 7 1 4-4 7-6 3M6 9l2 2m10-2-2 2M6 16l3-1m9 1-3-1"></path></svg></div><div class="label">MODEL STRATEGY</div><div class="value">Baseline → Bandit → RL</div><div class="hint">RL의 추가가치를 데이터로 검증</div></div><div class="card kpi metric-card"><div class="metric-icon" data-ui="true"><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8l10-5Zm-9 10 9 5 9-5m-18 5 9 5 9-5"></path></svg></div><div class="label">BUSINESS SHAPE</div><div class="value">Creator Revenue SaaS</div><div class="hint">개인 블로거·크리에이터 대상 구독형</div></div></section>
+<div class="section" id="section-1"><h2>1. End-to-End 파이프라인</h2><span>6개 역할 · 3개 Pair · 각 Pair 공동 책임</span></div><section class="pipeline">
+<article class="stage s1 pair-color-1" data-pair="1"><div class="stage-top"><div class="num">01</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"></path></svg><span class="stage-pair" data-ui="true">PAIR 01</span></div><h3>Naver DataLab 수집</h3><p>검색·쇼핑 트렌드, 키워드, 카테고리 관심도를 주기적으로 수집하고 timestamp 기준으로 적재.</p><div class="tagrow"><span class="tag">API</span><span class="tag">ETL</span><span class="tag">Scheduler</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 A 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="A" data-placeholder="팀원 1" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 1</span><span class="stage-deliverable">산출물: raw_trend + normalized_trend</span></div></article>
+<article class="stage s2 pair-color-1" data-pair="1"><div class="stage-top"><div class="num">02</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8l10-5Zm-9 10 9 5 9-5m-18 5 9 5 9-5"></path></svg><span class="stage-pair" data-ui="true">PAIR 01</span></div><h3>지식 정제 · Obsidian</h3><p>키워드 중복 제거, intent·카테고리·연관어를 정리하고 과거 성과와 연결. Obsidian은 사람 친화적 지식 레이어.</p><div class="tagrow"><span class="tag">Obsidian</span><span class="tag">Metadata</span><span class="tag">Memory</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 B 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="B" data-placeholder="팀원 2" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 2</span><span class="stage-deliverable">산출물: content brief + knowledge note</span></div></article>
+<article class="stage s3 pair-color-2" data-pair="2"><div class="stage-top"><div class="num">03</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3Zm7 0v4m-2-2h4"></path></svg><span class="stage-pair" data-ui="true">PAIR 02</span></div><h3>LLM 콘텐츠 생성</h3><p>트렌드·지식노트·SEO 키워드로 제목/본문/태그/상품 삽입 후보 위치를 생성. 초기에는 human review 포함.</p><div class="tagrow"><span class="tag">LLM</span><span class="tag">Prompt</span><span class="tag">SEO</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 C 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="C" data-placeholder="팀원 3" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 3</span><span class="stage-deliverable">산출물: draft_post + content_embedding</span></div></article>
+<article class="stage s4 pair-color-2" data-pair="2"><div class="stage-top"><div class="num">04</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="m10 13 4-4m-5-3 2-2a5 5 0 0 1 7 7l-3 3m-6-4-3 3a5 5 0 0 0 7 7l2-2"></path></svg><span class="stage-pair" data-ui="true">PAIR 02</span></div><h3>상품 매칭 · 링크</h3><p>콘텐츠와 상품 후보를 매칭하고 상품·노출위치·CTA 조합을 생성. 쇼핑커넥트 링크와 tracking key 부여.</p><div class="tagrow"><span class="tag">Matching</span><span class="tag">Affiliate</span><span class="tag">Tracking</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 D 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="D" data-placeholder="팀원 4" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 4</span><span class="stage-deliverable">산출물: candidate actions + tracked links</span></div></article>
+<article class="stage s5 pair-color-3" data-pair="3"><div class="stage-top"><div class="num">05</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M12 4v16m0-14c-3-5-8-1-6 3-4 1-4 6 0 7-1 4 4 7 6 3m0-13c3-5 8-1 6 3 4 1 4 6 0 7 1 4-4 7-6 3M6 9l2 2m10-2-2 2M6 16l3-1m9 1-3-1"></path></svg><span class="stage-pair" data-ui="true">PAIR 03</span></div><h3>Bandit / RL 의사결정</h3><p>Rule·Popularity·Thompson/LinUCB를 먼저 비교. 지연보상·반복노출 효과가 확인되면 Offline RL/IQL로 확장.</p><div class="tagrow"><span class="tag">Bandit</span><span class="tag">IQL</span><span class="tag">Policy</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 E 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="E" data-placeholder="팀원 5" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 5</span><span class="stage-deliverable">산출물: policy + experiment report</span></div></article>
+<article class="stage s6 pair-color-3" data-pair="3"><div class="stage-top"><div class="num">06</div><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><path d="M4 3v17h17M8 14l4-5 4 3 5-7"></path></svg><span class="stage-pair" data-ui="true">PAIR 03</span></div><h3>성과 로그 · 피드백</h3><p>Impression→Click→Purchase→Revenue를 연결하고 CTR/CVR/수익 uplift를 계산. 다음 정책의 reward로 환류.</p><div class="tagrow"><span class="tag">Dashboard</span><span class="tag">Metrics</span><span class="tag">Feedback</span></div><div class="owner"><b>Owner:</b> <span aria-label="담당자 F 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="F" data-placeholder="팀원 6" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 6</span><span class="stage-deliverable">산출물: KPI dashboard + learning log</span></div></article></section><div class="loop"><b>Feedback Loop:</b> 성과 로그 → 과거 성과/메모리 업데이트 → 다음 콘텐츠·상품 context 강화 → policy 재선택</div>
+<div class="section" id="section-2"><h2>2. 6인 역할 분담안</h2><span>이름 칸은 클릭해서 현장에서 수정</span></div><section class="card"><div class="table-scroll"><table class="role-table"><thead><tr><th>역할</th><th>담당</th><th>핵심 책임</th><th>첫 산출물</th></tr></thead><tbody>
+<tr><td class="role">A. Data / API Engineer</td><td><span aria-label="담당자 A 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="A" data-placeholder="팀원 1" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 1</span></td><td>DataLab/API 수집, 스케줄링, raw/clean schema</td><td><span class="badge">trend_dataset</span></td></tr><tr><td class="role">B. Knowledge / Obsidian</td><td><span aria-label="담당자 B 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="B" data-placeholder="팀원 2" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 2</span></td><td>taxonomy, intent, note schema, 메모리 구조</td><td><span class="badge">knowledge_template</span></td></tr><tr><td class="role">C. LLM Content Agent</td><td><span aria-label="담당자 C 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="C" data-placeholder="팀원 3" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 3</span></td><td>콘텐츠 생성, SEO, 품질평가, embedding</td><td><span class="badge">content_generator</span></td></tr><tr><td class="role">D. Commerce / Product Matching</td><td><span aria-label="담당자 D 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="D" data-placeholder="팀원 4" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 4</span></td><td>상품 후보, affiliate link, placement/CTA action space</td><td><span class="badge">candidate_actions</span></td></tr><tr><td class="role">E. Bandit / RL &amp; Experiment</td><td><span aria-label="담당자 E 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="E" data-placeholder="팀원 5" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 5</span></td><td>baseline, Thompson/LinUCB, IQL, A/B 실험</td><td><span class="badge">policy_v0</span></td></tr><tr><td class="role">F. Platform / Integration</td><td><span aria-label="담당자 F 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="F" data-placeholder="팀원 6" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 6</span></td><td>통합 API, tracking, KPI dashboard, demo orchestration</td><td><span class="badge">demo_v0</span></td></tr></tbody></table></div></section>
+<div class="section" id="section-3"><h2>3. 연구·제품 공통 데이터 흐름</h2><span>내 일이 어디로 연결되는지 한눈에</span></div><section class="grid grid2"><div class="card"><h3>Context → Action → Reward</h3><div class="flow"><div class="box">콘텐츠 임베딩</div><span class="arrow">+</span><div class="box">검색 트렌드</div><span class="arrow">+</span><div class="box">상품 특징</div><span class="arrow">+</span><div class="box">과거 CTR/CVR</div></div><br/><div class="flow"><span class="arrow">↓</span><div class="box">Action = 상품 × 위치 × CTA</div><span class="arrow">→</span><div class="box">Reward = Click / Purchase / Revenue</div></div><p class="note">연구 질문: Contextual Bandit으로 충분한가, 아니면 delayed conversion과 반복노출 때문에 sequential RL이 추가가치를 주는가?</p></div><div class="card"><h3>Baseline Ladder</h3><div class="flow"><div class="box">Rule-based</div><span class="arrow">→</span><div class="box">Popularity</div><span class="arrow">→</span><div class="box">Thompson / LinUCB</div><span class="arrow">→</span><div class="box">Neural Bandit</div><span class="arrow">→</span><div class="box">Offline RL / IQL</div></div><p class="note">RL부터 시작하지 않고, 간단한 모델이 충분한지 먼저 검증한 뒤 RL 필요성을 증명.</p></div></section>
+<div class="section" id="section-4"><h2>4. 제안서 → 데모 로드맵</h2><span>2026.10~2027.02 · WBS 일정 기준</span></div><section class="grid grid2"><div class="card"><div class="timeline"><div class="week">2026.10</div><div class="bar">프로젝트 정의 · 데이터/API 검증 · 시스템 설계</div><div class="week">2026.11</div><div class="bar warn">Baseline PoC · 제안서 작성 → <b>11/30 Proposal v1.0</b></div><div class="week">2026.12</div><div class="bar">Data/Memory · LLM · 상품 매칭 · Bandit · Dashboard 모듈 개발</div><div class="week">2027.01</div><div class="bar alt">End-to-End 통합 → <b>1/20 MVP v1</b></div><div class="week">2027.02</div><div class="bar warn">정책 실험 · 실제 Pilot · KPI 검증 → <b>2/28 Demo v1.0</b></div></div></div><div class="card checklist-card"><h3>오늘 Kick-off에서 결정할 것</h3><label class="check"><input data-check-id="0" disabled="" type="checkbox"/>첫 콘텐츠 카테고리 1개만 선정</label><label class="check"><input data-check-id="1" disabled="" type="checkbox"/>첫 상품 후보 10~20개로 제한</label><label class="check"><input data-check-id="2" disabled="" type="checkbox"/>1차 Reward를 CTR로 할지 구매/수익까지 포함할지</label><label class="check"><input data-check-id="3" disabled="" type="checkbox"/>DataLab / ShoppingConnect / Blog 로그 접근 가능 데이터 확인</label><label class="check"><input data-check-id="4" disabled="" type="checkbox"/>Owner 6명 + Git/Drive/Obsidian 작업공간 확정</label><label class="check"><input data-check-id="5" disabled="" type="checkbox"/>11/30 제안서 · 2/28 최종 데모의 최소 성공조건 합의</label></div></section>
+<div class="section" id="section-5"><h2>5. 성공 기준</h2><span>“학습되는 시스템”임을 증명</span></div><section class="grid grid2"><div class="card"><h3>핵심 KPI</h3><p>• CTR uplift vs static baseline: <b>+10% 이상 목표</b></p><p>• 상품-콘텐츠 Top-3 매칭 정성검수: <b>80%+</b></p><p>• End-to-End 자동화율: <b>80%+</b></p><p>• Demo 1회 pipeline 실행: <b>3분 이내</b></p><p class="note">CVR 데이터가 부족하면 초반에는 CTR을 surrogate reward로 사용하고 실제 매출은 후속 단계에서 확장.</p></div><div class="card checklist-card"><h3>오늘 회의 종료 조건</h3><label class="check"><input data-check-id="6" disabled="" type="checkbox"/>6명 역할 확정</label><label class="check"><input data-check-id="7" disabled="" type="checkbox"/>1차 데모에서 검증할 콘텐츠·상품 분야 선정</label><label class="check"><input data-check-id="8" disabled="" type="checkbox"/>공유 리포지토리/문서 위치 확정</label><label class="check"><input data-check-id="9" disabled="" type="checkbox"/>다음 회의에 가져올 Pair별 결과물·담당자·기한 확정</label><br/><button class="print-trigger">PDF로 인쇄</button></div></section>
+</div>
+<div aria-labelledby="nav-tab-pairs" class="tab-pane" id="tab-pairs" role="tabpanel" tabindex="0">
+<section class="grid grid4">
+<div class="card kpi"><div class="label">TEAM STRUCTURE</div><div class="value">6명 → 3 Pair</div><div class="hint">각 Pair는 Primary + Secondary owner 체계</div></div>
+<div class="card kpi"><div class="label">PAIR 1</div><div class="value">Sense &amp; Memory</div><div class="hint">트렌드 데이터를 읽고 Context로 변환</div></div>
+<div class="card kpi"><div class="label">PAIR 2</div><div class="value">Generate &amp; Match</div><div class="hint">생성형 LLM으로 콘텐츠 생성 + 상품 연결</div></div>
+<div class="card kpi"><div class="label">PAIR 3</div><div class="value">Learn &amp; Optimize</div><div class="hint">Bandit/RL로 정책 학습 + 성과 환류</div></div>
+</section>
+<div class="section" id="section-6"><h2>3-Pair 매칭안</h2><span>2명씩 한 subsystem을 공동 책임</span></div>
+<section class="pair-grid">
+<article class="pair-card pair-1 pair-color-1">
+<div class="pair-head"><div class="pair-kicker" data-ui="true">TEAM UNIT <span>01</span></div><h3>Pair 1 · Sense &amp; Memory</h3><p>Data + Knowledge</p></div>
+<div class="pair-body">
+<div class="pair-members">
+<div class="member"><span class="member-avatar" data-ui="true">A</span><b>A · Data/API</b><span aria-label="담당자 A 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="A" data-placeholder="팀원 1" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 1</span></div>
+<div class="member"><span class="member-avatar" data-ui="true">B</span><b>B · Knowledge/Obsidian</b><span aria-label="담당자 B 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="B" data-placeholder="팀원 2" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 2</span></div>
+</div>
+<h4>핵심 역할</h4>
+<ul>
+<li>Naver DataLab 검색·쇼핑 트렌드 수집 및 ETL</li>
+<li>키워드 정제, intent·category·연관어 구조화</li>
+<li>Obsidian note schema 및 장기 Memory 설계</li>
+<li>Pair 2·3이 사용할 Context feature 제공</li>
+</ul>
+<div class="pair-output"><b>Output</b><br/>Raw Trend → Structured Context / Knowledge Memory</div>
+</div>
+</article>
+<article class="pair-card pair-2 pair-color-2">
+<div class="pair-head"><div class="pair-kicker" data-ui="true">TEAM UNIT <span>02</span></div><h3>Pair 2 · Generate &amp; Match</h3><p>Generative LLM + Content Commerce</p></div>
+<div class="pair-body">
+<div class="pair-members">
+<div class="member"><span class="member-avatar" data-ui="true">C</span><b>C · LLM Content</b><span aria-label="담당자 C 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="C" data-placeholder="팀원 3" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 3</span></div>
+<div class="member"><span class="member-avatar" data-ui="true">D</span><b>D · Commerce/Product</b><span aria-label="담당자 D 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="D" data-placeholder="팀원 4" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 4</span></div>
+</div>
+<h4>핵심 역할</h4>
+<ul>
+<li>트렌드·지식노트 기반 제목/본문/태그 생성</li>
+<li>Prompt/RAG/Memory 기반 생성형 LLM 파이프라인</li>
+<li>콘텐츠와 상품 후보 semantic matching</li>
+<li>상품 삽입 위치, CTA 문구, Affiliate Link 구성</li>
+<li>여러 Content × Product 후보를 Pair 3에 전달</li>
+</ul>
+<div class="pair-output"><b>Output</b><br/>Context → Content Draft → Product / Placement / CTA Candidates</div>
+</div>
+</article>
+<article class="pair-card pair-3 pair-color-3">
+<div class="pair-head"><div class="pair-kicker" data-ui="true">TEAM UNIT <span>03</span></div><h3>Pair 3 · Learn &amp; Optimize</h3><p>Bandit / RL + Platform</p></div>
+<div class="pair-body">
+<div class="pair-members">
+<div class="member"><span class="member-avatar" data-ui="true">E</span><b>E · Bandit/RL</b><span aria-label="담당자 E 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="E" data-placeholder="팀원 5" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 5</span></div>
+<div class="member"><span class="member-avatar" data-ui="true">F</span><b>F · Platform/Integration</b><span aria-label="담당자 F 이름" aria-readonly="true" class="editable" contenteditable="false" data-member="F" data-placeholder="팀원 6" role="textbox" spellcheck="false" title="클릭해서 담당자 이름 수정 · 다른 탭에도 함께 반영됩니다">팀원 6</span></div>
+</div>
+<h4>핵심 역할</h4>
+<ul>
+<li>Rule / Popularity / Thompson / LinUCB baseline 비교</li>
+<li>State–Action–Reward 로그 schema 공동 설계</li>
+<li>sequential effect 확인 시 Offline RL/IQL 확장</li>
+<li>CTR/CVR/Revenue tracking 및 KPI dashboard</li>
+<li>End-to-End 통합과 policy feedback loop 구현</li>
+</ul>
+<div class="pair-output"><b>Output</b><br/>Policy Decision → Reward Log → Learning / Feedback Loop</div>
+</div>
+</article>
+</section>
+<div class="section" id="section-7"><h2>Pair 간 연결 구조</h2><span>Subsystem 단위 책임</span></div>
+<section class="pair-flow">
+<div class="pf pair-color-1"><span class="flow-number" data-ui="true">01</span><b>Pair 1 · Sense</b><span>시장/검색 신호를 읽고 학습 가능한 Context로 만든다.</span></div>
+<div class="arr">→</div>
+<div class="pf pair-color-2"><span class="flow-number" data-ui="true">02</span><b>Pair 2 · Generate</b><span>생성형 LLM으로 콘텐츠를 만들고 상품·위치·CTA 후보를 생성한다.</span></div>
+<div class="arr">→</div>
+<div class="pf pair-color-3"><span class="flow-number" data-ui="true">03</span><b>Pair 3 · Learn</b><span>후보 중 action을 선택하고 성과를 관측해 다음 정책에 반영한다.</span></div>
+</section>
+<div class="loop"><b>Feedback:</b> Pair 3의 CTR/CVR/Revenue 결과 → Pair 1의 Past Performance/Memory 업데이트 → Pair 2의 다음 콘텐츠·상품 후보 개선</div>
+<div class="section" id="section-8"><h2>Pair별 11월 말 제안서까지의 책임</h2><span>Proposal v1.0에 들어갈 최소 증거</span></div>
+<section class="card">
+<div class="table-scroll"><table class="role-table">
+<thead><tr><th>Pair</th><th>11월까지 반드시 보여줄 것</th><th>제안서 기여</th><th>2월 데모 책임</th></tr></thead>
+<tbody>
+<tr><td class="role">Pair 1</td><td>DataLab 샘플 + Context/Obsidian schema</td><td>Data feasibility · Context 정의</td><td>주기적 Context 공급</td></tr>
+<tr><td class="role">Pair 2</td><td>LLM 콘텐츠 샘플 + 상품/CTA 후보 생성</td><td>Generative AI · 서비스 핵심 UX</td><td>Content Generator + Product Recommendation</td></tr>
+<tr><td class="role">Pair 3</td><td>Rule/Bandit baseline + Reward/log schema</td><td>연구 가설 · 학습 가능성 · 평가 설계</td><td>Policy + KPI + Feedback Loop</td></tr>
+</tbody>
+</table></div>
+</section>
+<div class="section" id="section-9"><h2>Pair 2의 생성형 LLM 범위</h2><span>생성형 AI 관심 팀원에게 설명할 범위</span></div>
+<section class="grid grid2">
+<div class="card">
+<h2>Generative AI</h2>
+<div class="flow">
+<div class="box">Trend / Memory</div><span class="arrow">→</span>
+<div class="box">Prompt / RAG</div><span class="arrow">→</span>
+<div class="box">LLM</div><span class="arrow">→</span>
+<div class="box">Blog Draft</div>
+</div>
+<p class="note">제목·본문·태그·SEO 키워드·CTA 문구를 만들고, 필요하면 여러 후보 버전을 생성한다.</p>
+</div>
+<div class="card">
+<h2>Commerce Intelligence</h2>
+<div class="flow">
+<div class="box">Content Embedding</div><span class="arrow">+</span>
+<div class="box">Product Features</div><span class="arrow">→</span>
+<div class="box">Candidate Set</div>
+</div>
+<p class="note">Pair 2는 단순 글쓰기 팀이 아니라 생성된 콘텐츠를 실제 상품·전환 의사결정과 연결하는 팀이다.</p>
+</div>
+</section>
+<div class="pair-note"><b>운영 원칙:</b> 각 Pair 안에서 한 명은 Primary, 다른 한 명은 Secondary owner로 두고 서로의 코드·데이터 구조를 리뷰한다. 한 명이 빠져도 subsystem이 멈추지 않도록 한다.</div>
+</div>
+<div aria-labelledby="nav-tab-wbs" class="tab-pane" id="tab-wbs" role="tabpanel" tabindex="0">
+<div class="section" id="section-10"><h2>WBS · 2026.10.07 → 2027.02.28</h2><span>11월 말 Proposal · 2월 말 End-to-End Demo</span></div>
+<section class="wbs-hero">
+<div class="card">
+<h2 style="margin-top:0;color:var(--navy)">프로젝트 실행 원칙</h2>
+<p class="note">11월까지는 <b>연구설계 60% + 작은 PoC 40%</b>, 12~2월은 <b>개발·실증 70% + 연구 30%</b>로 운영한다. 11월 목표는 논문 완성이 아니라 <b>제안할 가치가 있다는 증거</b>, 2월 목표는 <b>실제 데이터가 들어오고 정책이 바뀌는 End-to-End Agent</b>다.</p>
+<div class="wbs-callout"><b>연구 질문</b> — 콘텐츠와 소비자 관심 맥락을 이용하여 제휴상품 노출을 적응적으로 최적화하면 정적 상품선정 방식보다 전환성과를 개선할 수 있는가?</div>
+<div class="formula">Context → Action → Reward</div>
+</div>
+<div class="wbs-deadline">
+<div class="small">M4 · 제안서 마감</div><div class="big">2026.11.30</div><div class="small">Proposal v1.0 Freeze</div>
+<hr style="border:0;border-top:1px solid rgba(255,255,255,.22);margin:15px 0"/>
+<div class="small">M10 · 최종 데모</div><div class="big">2027.02.28</div><div class="small">Demo v1.0 · 실제 데이터 + 정책 업데이트</div>
+</div>
+</section>
+<section class="card gantt-card" data-ui="true"><div class="gantt-top"><div><div class="overline">PROJECT TIMELINE</div><h2>제안서에서 데모까지</h2></div><div class="gantt-legend"><span><i class="g-1"></i>기획·제안</span><span><i class="g-2"></i>개발·통합</span><span><i class="g-3"></i>실험·데모</span></div></div><div class="gantt-scroll"><div class="gantt-inner"><div class="gantt-axis"><span>10 WORK PACKAGES</span><div class="gantt-months"><span style="flex:25">2026.10</span><span style="flex:30">11</span><span style="flex:31">12</span><span style="flex:31">2027.01</span><span style="flex:28">02</span></div><span>PERIOD</span></div><button aria-label="프로젝트 정의·역할 확정 10/7~10/18 상세 작업 열기" class="gantt-row" data-wbs="1" type="button"><span class="gantt-label"><em>01</em>프로젝트 정의·역할 확정</span><span class="gantt-track"><span class="gantt-bar g-1" style="left:0.0000%;width:8.2759%;" title="10/7~10/18"></span></span><span class="gantt-dates">10/7~10/18</span></button><button aria-label="데이터·기술 타당성 검증 10/13~10/31 상세 작업 열기" class="gantt-row" data-wbs="2" type="button"><span class="gantt-label"><em>02</em>데이터·기술 타당성 검증</span><span class="gantt-track"><span class="gantt-bar g-1" style="left:4.1379%;width:13.1034%;" title="10/13~10/31"></span></span><span class="gantt-dates">10/13~10/31</span></button><button aria-label="모델·서비스 설계 10/20~11/15 상세 작업 열기" class="gantt-row" data-wbs="3" type="button"><span class="gantt-label"><em>03</em>모델·서비스 설계</span><span class="gantt-track"><span class="gantt-bar g-1" style="left:8.9655%;width:18.6207%;" title="10/20~11/15"></span></span><span class="gantt-dates">10/20~11/15</span></button><button aria-label="Baseline PoC 및 제안서 근거 확보 11/1~11/23 상세 작업 열기" class="gantt-row" data-wbs="4" type="button"><span class="gantt-label"><em>04</em>Baseline PoC 및 제안서 근거 확보</span><span class="gantt-track"><span class="gantt-bar g-1" style="left:17.2414%;width:15.8621%;" title="11/1~11/23"></span></span><span class="gantt-dates">11/1~11/23</span></button><button aria-label="제안서 작성·확정 11/16~11/30 상세 작업 열기" class="gantt-row" data-wbs="5" type="button"><span class="gantt-label"><em>05</em>제안서 작성·확정</span><span class="gantt-track"><span class="gantt-bar g-1" style="left:27.5862%;width:10.3448%;" title="11/16~11/30"></span></span><span class="gantt-dates">11/16~11/30</span></button><button aria-label="MVP 각 모듈 개발 12/1~12/31 상세 작업 열기" class="gantt-row" data-wbs="6" type="button"><span class="gantt-label"><em>06</em>MVP 각 모듈 개발</span><span class="gantt-track"><span class="gantt-bar g-2" style="left:37.9310%;width:21.3793%;" title="12/1~12/31"></span></span><span class="gantt-dates">12/1~12/31</span></button><button aria-label="End-to-End 통합 1/1~1/20 상세 작업 열기" class="gantt-row" data-wbs="7" type="button"><span class="gantt-label"><em>07</em>End-to-End 통합</span><span class="gantt-track"><span class="gantt-bar g-2" style="left:59.3103%;width:13.7931%;" title="1/1~1/20"></span></span><span class="gantt-dates">1/1~1/20</span></button><button aria-label="Bandit/RL 실험 및 성능 비교 1/15~2/7 상세 작업 열기" class="gantt-row" data-wbs="8" type="button"><span class="gantt-label"><em>08</em>Bandit/RL 실험 및 성능 비교</span><span class="gantt-track"><span class="gantt-bar g-3" style="left:68.9655%;width:16.5517%;" title="1/15~2/7"></span></span><span class="gantt-dates">1/15~2/7</span></button><button aria-label="실제 콘텐츠 적용·로그 수집 2/1~2/15 상세 작업 열기" class="gantt-row" data-wbs="9" type="button"><span class="gantt-label"><em>09</em>실제 콘텐츠 적용·로그 수집</span><span class="gantt-track"><span class="gantt-bar g-3" style="left:80.6897%;width:10.3448%;" title="2/1~2/15"></span></span><span class="gantt-dates">2/1~2/15</span></button><button aria-label="데모 고도화·발표 준비 2/16~2/28 상세 작업 열기" class="gantt-row" data-wbs="10" type="button"><span class="gantt-label"><em>10</em>데모 고도화·발표 준비</span><span class="gantt-track"><span class="gantt-bar g-3" style="left:91.0345%;width:8.9655%;" title="2/16~2/28"></span></span><span class="gantt-dates">2/16~2/28</span></button></div></div><div class="gantt-footer"><span><svg aria-hidden="true" class="icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="5"></rect><path d="M16 3v4M8 3v4M3 11h18m-13 5h2m4 0h2"></path></svg> 2026.10.07 — 2027.02.28</span><span>작업을 클릭하면 상세 WBS로 이동합니다</span></div></section><div class="section schedule-table-title" data-ui="true"><h2>WBS 요약표</h2><span>기존 작업·기간·산출물·담당 유지</span></div><section class="card wbs-table-wrap">
+<table class="wbs-table">
+<thead><tr><th>WBS</th><th>기간</th><th>주요 작업</th><th>핵심 산출물</th><th>주 담당</th><th>공유 상태</th><th>진행률</th></tr></thead>
+<tbody>
+<tr aria-label="프로젝트 정의·역할 확정 상세 작업 열기" data-wbs="1" role="button" tabindex="0"><td>1.0</td><td>10/7~10/18</td><td>프로젝트 정의·역할 확정</td><td>Problem Statement, 역할표</td><td>전체</td><td class="sync-cell"><select aria-label="WBS 1.0 상태" class="wbs-status" data-wbs-status="1.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 1.0 진행률" class="wbs-progress" data-wbs-progress="1.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="1.0">0%</span></div></td></tr>
+<tr aria-label="데이터·기술 타당성 검증 상세 작업 열기" data-wbs="2" role="button" tabindex="0"><td>2.0</td><td>10/13~10/31</td><td>데이터·기술 타당성 검증</td><td>데이터 샘플, API PoC</td><td>A/B/D</td><td class="sync-cell"><select aria-label="WBS 2.0 상태" class="wbs-status" data-wbs-status="2.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 2.0 진행률" class="wbs-progress" data-wbs-progress="2.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="2.0">0%</span></div></td></tr>
+<tr aria-label="모델·서비스 설계 상세 작업 열기" data-wbs="3" role="button" tabindex="0"><td>3.0</td><td>10/20~11/15</td><td>모델·서비스 설계</td><td>아키텍처, MDP/Bandit 정의</td><td>C/E/F</td><td class="sync-cell"><select aria-label="WBS 3.0 상태" class="wbs-status" data-wbs-status="3.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 3.0 진행률" class="wbs-progress" data-wbs-progress="3.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="3.0">0%</span></div></td></tr>
+<tr aria-label="Baseline PoC 및 제안서 근거 확보 상세 작업 열기" data-wbs="4" role="button" tabindex="0"><td>4.0</td><td>11/1~11/23</td><td>Baseline PoC 및 제안서 근거 확보</td><td>Rule/Bandit 초기 결과</td><td>A~F</td><td class="sync-cell"><select aria-label="WBS 4.0 상태" class="wbs-status" data-wbs-status="4.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 4.0 진행률" class="wbs-progress" data-wbs-progress="4.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="4.0">0%</span></div></td></tr>
+<tr aria-label="제안서 작성·확정 상세 작업 열기" data-wbs="5" role="button" tabindex="0"><td>5.0</td><td>11/16~11/30</td><td>제안서 작성·확정</td><td><b>최종 제안서</b></td><td>전체</td><td class="sync-cell"><select aria-label="WBS 5.0 상태" class="wbs-status" data-wbs-status="5.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 5.0 진행률" class="wbs-progress" data-wbs-progress="5.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="5.0">0%</span></div></td></tr>
+<tr aria-label="MVP 각 모듈 개발 상세 작업 열기" data-wbs="6" role="button" tabindex="0"><td>6.0</td><td>12/1~12/31</td><td>MVP 각 모듈 개발</td><td>모듈별 v0</td><td>A~F</td><td class="sync-cell"><select aria-label="WBS 6.0 상태" class="wbs-status" data-wbs-status="6.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 6.0 진행률" class="wbs-progress" data-wbs-progress="6.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="6.0">0%</span></div></td></tr>
+<tr aria-label="End-to-End 통합 상세 작업 열기" data-wbs="7" role="button" tabindex="0"><td>7.0</td><td>1/1~1/20</td><td>End-to-End 통합</td><td>통합 MVP v1</td><td>F 중심</td><td class="sync-cell"><select aria-label="WBS 7.0 상태" class="wbs-status" data-wbs-status="7.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 7.0 진행률" class="wbs-progress" data-wbs-progress="7.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="7.0">0%</span></div></td></tr>
+<tr aria-label="Bandit/RL 실험 및 성능 비교 상세 작업 열기" data-wbs="8" role="button" tabindex="0"><td>8.0</td><td>1/15~2/7</td><td>Bandit/RL 실험 및 성능 비교</td><td>정책 비교 결과</td><td>E 중심</td><td class="sync-cell"><select aria-label="WBS 8.0 상태" class="wbs-status" data-wbs-status="8.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 8.0 진행률" class="wbs-progress" data-wbs-progress="8.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="8.0">0%</span></div></td></tr>
+<tr aria-label="실제 콘텐츠 적용·로그 수집 상세 작업 열기" data-wbs="9" role="button" tabindex="0"><td>9.0</td><td>2/1~2/15</td><td>실제 콘텐츠 적용·로그 수집</td><td>CTR/CVR/Reward 로그</td><td>전체</td><td class="sync-cell"><select aria-label="WBS 9.0 상태" class="wbs-status" data-wbs-status="9.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 9.0 진행률" class="wbs-progress" data-wbs-progress="9.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="9.0">0%</span></div></td></tr>
+<tr aria-label="데모 고도화·발표 준비 상세 작업 열기" data-wbs="10" role="button" tabindex="0"><td>10.0</td><td>2/16~2/28</td><td>데모 고도화·발표 준비</td><td><b>최종 Demo v1.0</b></td><td>전체</td><td class="sync-cell"><select aria-label="WBS 10.0 상태" class="wbs-status" data-wbs-status="10.0" disabled=""><option value="not_started">대기</option><option value="in_progress">진행중</option><option value="blocked">이슈</option><option value="done">완료</option></select></td><td class="sync-cell"><div class="wbs-progress-wrap"><input aria-label="WBS 10.0 진행률" class="wbs-progress" data-wbs-progress="10.0" disabled="" max="100" min="0" step="5" type="range" value="0"/><span class="wbs-progress-value" data-wbs-progress-value="10.0">0%</span></div></td></tr>
+</tbody>
+</table>
+</section>
+<div class="section" id="section-11"><h2>상세 WBS</h2><span>클릭해서 펼치기</span><div class="detail-controls" data-ui="true"><button data-details="open" type="button">전체 펼치기</button><button data-details="close" type="button">전체 접기</button></div></div>
+<section class="wbs-detail">
+<details class="wbs-item" id="wbs-1"><summary aria-label="1. 프로젝트 정의 10/7~10/18 상세 내용"><span class="wbs-index" data-ui="true">01</span><span class="wbs-name">1. 프로젝트 정의</span><span class="wbs-dates">10/7~10/18</span></summary><div class="inside">
+<h4>1.1 문제 정의</h4><p>연구 질문을 하나로 고정하고 핵심 구조를 확정한다.</p><div class="formula">Context → Action → Reward</div>
+<h4>1.2 MVP 범위 제한</h4><ul><li>콘텐츠 카테고리 1개</li><li>상품 10~20개</li><li>블로그 1개</li><li>KPI 1~2개</li></ul>
+<p>초기 reward는 가장 현실적으로 클릭부터 시작하고, 구매 데이터를 확보하면 확장한다.</p><div class="formula">r_t = Click_t  →  r_t = α·Click + β·Purchase + γ·Revenue</div>
+<h4>1.3 6인 역할 확정</h4><p>Pair 1 = A Data/API + B Knowledge/Obsidian · Pair 2 = C LLM Content + D Commerce/Product · Pair 3 = E Bandit/RL + F Platform/Integration</p>
+<div class="milestone">M1 · 10/18 — “6명이 같은 시스템 그림을 보고 자기 역할을 설명할 수 있음.”</div>
+</div></details>
+<details class="wbs-item" id="wbs-2"><summary aria-label="2. 데이터·기술 타당성 검증 10/13~10/31 상세 내용"><span class="wbs-index" data-ui="true">02</span><span class="wbs-name">2. 데이터·기술 타당성 검증</span><span class="wbs-dates">10/13~10/31</span></summary><div class="inside">
+<p><b>제안서 전에 작은 데이터라도 보여주는 단계.</b></p>
+<h4>2.1 DataLab 파이프라인 · A</h4><div class="formula">Naver DataLab → Raw Keyword → Trend DB</div><ul><li>키워드</li><li>날짜</li><li>카테고리</li><li>검색/쇼핑 관심도</li><li>관련 키워드</li></ul>
+<h4>2.2 Obsidian Knowledge Layer · B</h4><div class="formula multiline">러닝화
+├─ Trend
+├─ Intent
+├─ Target
+├─ Related Keywords
+├─ Product Candidates
+└─ Past Performance</div><p>Obsidian은 DB가 아니라 human-readable knowledge/memory layer로 사용.</p>
+<h4>2.3 ShoppingConnect 데이터 확인 · D</h4><ul><li>상품 후보 데이터</li><li>Affiliate Link 생성</li><li>Click tracking</li><li>주문/수익 데이터</li><li>Attribution 기간</li></ul>
+<div class="milestone">M2 · 10/31 — Trend + Content + Product가 하나의 샘플 레코드로 연결</div>
+</div></details>
+<details class="wbs-item" id="wbs-3"><summary aria-label="3. 모델·서비스 설계 10/20~11/15 상세 내용"><span class="wbs-index" data-ui="true">03</span><span class="wbs-name">3. 모델·서비스 설계</span><span class="wbs-dates">10/20~11/15</span></summary><div class="inside">
+<h4>3.1 Context</h4><div class="formula">s_t = [ContentEmbedding, Trend_t, ProductFeature, Time_t, HistoricalCTR]</div>
+<h4>3.2 Action</h4><div class="formula multiline">초기: a_t = Product
+확장: a_t = (Product, Placement, CTA)</div>
+<h4>3.3 Model Ladder</h4><div class="formula">Rule → Popularity → Thompson → LinUCB → Neural Bandit → IQL</div><p>처음부터 IQL로 가지 않고, RL의 추가가치를 데이터로 검증한다.</p>
+<h4>3.4 Architecture</h4><div class="formula">DataLab → Knowledge/Memory → LLM Content → Product Candidates → Bandit/RL → Publish → Click/Purchase → Reward</div>
+<div class="milestone">M3 · 11/15 — 아키텍처 + State/Action/Reward + Baseline 정의 완료</div>
+</div></details>
+<details class="wbs-item" id="wbs-4"><summary aria-label="4. Baseline PoC 11/1~11/23 상세 내용"><span class="wbs-index" data-ui="true">04</span><span class="wbs-name">4. Baseline PoC</span><span class="wbs-dates">11/1~11/23</span></summary><div class="inside">
+<p>제안서에 넣을 <b>첫 번째 숫자</b>를 만든다. 최고성능보다 전체 pipeline이 실제로 돈다는 증거가 중요하다.</p>
+<h4>Rule-Based</h4><p>콘텐츠 카테고리와 상품 카테고리 matching.</p>
+<h4>Similarity-Based</h4><div class="formula">sim(ContentEmbedding, ProductEmbedding)</div>
+<h4>Popularity</h4><p>최근 인기상품.</p>
+<h4>Bandit</h4><p>Thompson Sampling 또는 LinUCB.</p>
+<div class="wbs-callout"><b>제안서용 예시 문장</b> — 100개 콘텐츠-상품 후보에 대해 초기 추천엔진을 구현했으며, 정적 rule-based 대비 context-aware 방식이 상위 상품 선택에서 개선 가능성을 보였다.</div>
+</div></details>
+<details class="wbs-item" id="wbs-5"><summary aria-label="5. 제안서 작성 11/16~11/30 상세 내용"><span class="wbs-index" data-ui="true">05</span><span class="wbs-name">5. 제안서 작성</span><span class="wbs-dates">11/16~11/30</span></summary><div class="inside">
+<ol style="padding-left:18px"><li><b>Problem</b> — 어떤 글에 어떤 상품을 연결해야 매출이 높아지는지 알기 어렵다.</li><li><b>Existing Method</b> — 사람의 직관 또는 인기상품 중심.</li><li><b>Proposed System</b> — RL 기반 콘텐츠 커머스 최적화 에이전트.</li><li><b>Data</b> — DataLab + Content + Product + Click/Purchase.</li><li><b>Method</b> — Static → Bandit → RL.</li><li><b>Demo</b> — 실제 블로그 적용.</li><li><b>Business</b> — Creator Revenue Optimization SaaS.</li><li><b>Evaluation</b> — CTR, CVR, Revenue, Cumulative Reward.</li></ol>
+<div class="milestone">M4 · 11/30 — Proposal v1.0 Freeze · 이후 핵심 연구 아이디어는 가급적 고정</div>
+</div></details>
+<details class="wbs-item" id="wbs-6"><summary aria-label="6. 모듈별 MVP 개발 12/1~12/31 상세 내용"><span class="wbs-index" data-ui="true">06</span><span class="wbs-name">6. 모듈별 MVP 개발</span><span class="wbs-dates">12/1~12/31</span></summary><div class="inside">
+<div class="table-scroll"><table class="mini-role"><thead><tr><th>담당</th><th>12월 산출물</th></tr></thead><tbody><tr><td>A</td><td>DataLab 자동수집</td></tr><tr><td>B</td><td>Knowledge/Obsidian Pipeline</td></tr><tr><td>C</td><td>LLM Content Generator</td></tr><tr><td>D</td><td>Product Matcher / Affiliate Link</td></tr><tr><td>E</td><td>Bandit Baseline</td></tr><tr><td>F</td><td>통합 Backend + Dashboard</td></tr></tbody></table></div>
+<p>연말 목표: Input Keyword 하나를 넣으면 Trend → Content → Product까지 자동 실행.</p>
+<div class="milestone">M5 · 12/31 — MVP Module Complete</div>
+</div></details>
+<details class="wbs-item" id="wbs-7"><summary aria-label="7. End-to-End Integration 1/1~1/20 상세 내용"><span class="wbs-index" data-ui="true">07</span><span class="wbs-name">7. End-to-End Integration</span><span class="wbs-dates">1/1~1/20</span></summary><div class="inside">
+<div class="formula multiline">“러닝화”
+↓
+DataLab Trend
+↓
+Obsidian Memory
+↓
+LLM Blog Draft
+↓
+상품 후보 10개
+↓
+Bandit 선택
+↓
+Affiliate Link 삽입
+↓
+Dashboard</div>
+<p>개별 모듈 성능보다 <b>버튼 하나로 전체 흐름이 돌아가는 상태</b>가 핵심.</p>
+<div class="milestone">M6 · 1/20 — End-to-End MVP v1</div>
+</div></details>
+<details class="wbs-item" id="wbs-8"><summary aria-label="8. Bandit / RL 실험 1/15~2/7 상세 내용"><span class="wbs-index" data-ui="true">08</span><span class="wbs-name">8. Bandit / RL 실험</span><span class="wbs-dates">1/15~2/7</span></summary><div class="inside">
+<div class="formula">Rule-based vs Contextual Bandit</div><p>우선 단기 노출 최적화를 비교한다.</p>
+<div class="formula">Bandit vs IQL</div><p>sequential effect가 확인될 때만 Offline RL/IQL로 확장한다.</p>
+<div class="wbs-callout"><b>핵심 판단</b> — “이 문제가 정말 RL을 필요로 하는가?” RL이 이기지 않아도 실패가 아니다. 단기 상품노출에서는 Bandit이 충분하고 delayed conversion에서 RL 우위가 나타난다면 오히려 더 좋은 연구결과다.</div>
+</div></details>
+<details class="wbs-item" id="wbs-9"><summary aria-label="9. 실제 Pilot 2/1~2/15 상세 내용"><span class="wbs-index" data-ui="true">09</span><span class="wbs-name">9. 실제 Pilot</span><span class="wbs-dates">2/1~2/15</span></summary><div class="inside">
+<p>실제 블로그를 testbed로 사용한다.</p><div class="formula multiline">Static → 7 days
+Adaptive → 7 days</div>
+<p>확보 가능한 최소 로그: Impression · Click · CTR · Purchase · Revenue.</p>
+</div></details>
+<details class="wbs-item" id="wbs-10"><summary aria-label="10. Demo Final 2/16~2/28 상세 내용"><span class="wbs-index" data-ui="true">10</span><span class="wbs-name">10. Demo Final</span><span class="wbs-dates">2/16~2/28</span></summary><div class="inside">
+<ol style="padding-left:18px"><li>Trend Monitor — 오늘 인기 키워드</li><li>Content Generator — AI 생성 콘텐츠</li><li>Product Recommendation — 추천상품과 이유</li><li>Policy — 현재 Bandit/RL 정책</li><li>Performance — CTR/CVR/Revenue/Reward</li></ol>
+<div class="wbs-callout"><b>반드시 보여줄 것</b> — “AI가 어제보다 오늘 다른 상품을 선택한 이유”. 이 설명이 있어야 단순 자동화툴이 아니라 학습하는 에이전트로 보인다.</div>
+<div class="milestone">M10 · 2/28 — 최종 Demo v1.0</div>
+</div></details>
+</section>
+<div class="section" id="section-12"><h2>전체 일정 한 장 요약</h2><span>월별 핵심 목표</span></div>
+<section class="month-grid">
+<div class="month"><div class="month-step" data-ui="true">PHASE 01</div><h3>2026.10</h3><ul><li>프로젝트 정의</li><li>데이터/API 검증</li><li>시스템 설계</li></ul></div>
+<div class="month"><div class="month-step" data-ui="true">PHASE 02</div><h3>2026.11</h3><ul><li>Baseline PoC</li><li>Architecture</li><li class="star">★ Proposal v1.0 · 11/30</li></ul></div>
+<div class="month"><div class="month-step" data-ui="true">PHASE 03</div><h3>2026.12</h3><ul><li>Data Pipeline</li><li>LLM Agent</li><li>Product Matcher</li><li>Bandit</li><li>Dashboard</li></ul></div>
+<div class="month"><div class="month-step" data-ui="true">PHASE 04</div><h3>2027.01</h3><ul><li>End-to-End Integration</li><li class="star">★ MVP v1 · 1/20</li></ul></div>
+<div class="month"><div class="month-step" data-ui="true">PHASE 05</div><h3>2027.02</h3><ul><li>Bandit vs RL</li><li>Real Blog Pilot</li><li>KPI Validation</li><li class="star">★ Demo v1.0 · 2/28</li></ul></div>
+</section>
+<div class="section" id="section-13"><h2>리소스 배분 가이드</h2><span>6인 팀 운영 기준</span></div>
+<section class="allocation">
+<div class="card"><div class="ratio">60% 연구설계 · 40% PoC</div><p class="note">10~11월: 문제 정의, 데이터 가능성, State/Action/Reward, baseline, proposal 근거 확보.</p></div>
+<div class="card"><div class="ratio">70% 개발·실증 · 30% 연구</div><p class="note">12~2월: 모듈 개발, 통합, 실제 로그, Bandit/RL 비교, 최종 데모.</p></div>
+</section>
+</div></main>
+<footer><div class="footer-mark">CONTENT COMMERCE<span> / PROJECT WORKSPACE</span></div><p>Kick-off용 초안 · Obsidian은 MVP의 human-readable knowledge layer이며, SaaS 확장 시 structured DB/Vector Store가 중심이 되는 구조를 권장</p><div class="footer-note">담당자·체크리스트·WBS 진행상태는 Supabase와 동기화할 수 있습니다.<br/>Supabase 연결 시 팀원 수정사항이 실시간 공유됩니다. 연결 전에는 로컬 데모 모드로 동작합니다.<br/>이 파일은 프로젝트 설명·관리 대시보드이며, 실제 데이터 수집·LLM 생성 서비스를 실행하지 않습니다.</div></footer>
+</div>
+
+<div aria-live="polite" id="toast" role="status"></div>
+
+
+
+<dialog aria-labelledby="workspace-modal-title" class="workspace-dialog" id="workspace-modal">
+<div class="modal-head"><div><h2 id="workspace-modal-title">팀 공용 대시보드</h2><p>계정 생성과 팀원 승인은 별개입니다.</p></div><button aria-label="닫기" class="modal-close" id="modal-close" type="button">×</button></div>
+<div class="auth-user" id="auth-user">로그인되지 않음</div>
+<form id="auth-form"><label class="form-field"><span>이메일</span><input autocomplete="username" id="auth-email" maxlength="254" placeholder="name@example.com" required="" type="email"/></label><label class="form-field"><span>비밀번호</span><input autocomplete="current-password" id="auth-password" maxlength="128" minlength="8" placeholder="가입 시 8자 이상" required="" type="password"/></label><div class="modal-actions"><button class="primary-action" id="sign-in" type="submit">로그인</button><button class="secondary-action" id="sign-up" type="button">계정 만들기</button><button class="danger-action" hidden="" id="sign-out" type="button">로그아웃</button></div></form>
+<p aria-live="polite" class="auth-note" id="auth-feedback" role="status"></p><div class="modal-actions"><button class="secondary-action" id="refresh-access" type="button">승인 상태 다시 확인</button><button class="secondary-action" id="resend-email" type="button">인증 메일 재발송</button></div>
+<div class="connection-summary"><b>사용 순서</b><br/>① 계정 만들기 → ② 이메일 인증 → ③ 운영자 승인 → ④ 로그인 후 공용 편집<br/><br/>승인 전에는 공개된 프로젝트 설명과 초기 계획만 표시됩니다. 가입만으로 DB 접근 권한이 생기지 않습니다.<br/><br/><span id="connection-info"></span></div><p class="auth-note">인증 메일 확인 후 원래 대시보드로 돌아와 로그인하세요. 운영자는 Supabase의 Site URL·Redirect URL을 배포 주소로 설정해야 합니다. 비밀번호·서버용 비밀키를 채팅에 공유하지 마세요.</p></dialog></body>
+</html>
