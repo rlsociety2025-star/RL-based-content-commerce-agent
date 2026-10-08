@@ -1,0 +1,74 @@
+name: Deploy team dashboard
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'dashboard.css'
+      - 'dashboard.js'
+      - 'vendor/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_run:
+    workflows: ['Import dashboard layout']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check application source and prepare static site
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f dashboard.css
+          test -f vendor/supabase.js
+          node --check dashboard.js
+          node --check vendor/supabase.js
+          sha256sum --check vendor/CHECKSUMS.sha256
+          mkdir -p _site/vendor
+          cp index.html dashboard.css dashboard.js _site/
+          cp vendor/supabase.js vendor/LICENSE vendor/CHECKSUMS.sha256 _site/vendor/
+          touch _site/.nojekyll
+          python3 - <<'PY'
+          from pathlib import Path
+          page = Path('_site/index.html').read_text()
+          for marker in ['tab-overview', 'tab-pairs', 'tab-wbs', 'access-banner', 'workspace-modal']:
+              assert marker in page, marker
+          assert 'using (true)' not in Path('dashboard.js').read_text()
+          print('Static bundle validation passed.')
+          PY
+      - name: Preserve deployable bundle even if Pages activation is pending
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-deployment-bundle
+          path: _site
+          include-hidden-files: true
+          retention-days: 7
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
