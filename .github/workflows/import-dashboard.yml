@@ -1,0 +1,38 @@
+name: Import dashboard layout
+on:
+  push:
+    branches: [main]
+    paths: ['.import/layout.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore original HTML and CSS
+        run: |
+          python3 - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          source = Path('.import/layout.json')
+          if not source.exists():
+              print('Layout already imported.')
+              raise SystemExit(0)
+          bundle = json.loads(source.read_text())
+          for name in ('index.html', 'dashboard.css'):
+              entry = bundle[name]
+              content = gzip.decompress(base64.b64decode(entry['gzip_base64']))
+              assert hashlib.sha256(content).hexdigest() == entry['sha256'], name
+              Path(name).write_bytes(content)
+          source.unlink()
+          PY
+      - name: Commit readable source files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html dashboard.css .import/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Import original dashboard layout and styles'
+          git push origin HEAD:main
