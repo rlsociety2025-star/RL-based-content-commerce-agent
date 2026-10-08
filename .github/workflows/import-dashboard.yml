@@ -6,12 +6,20 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: dashboard-source-import
+  cancel-in-progress: false
 jobs:
   import:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore original HTML and CSS
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore original HTML and CSS without layout changes
         run: |
           python3 - <<'PY'
           import base64, gzip, hashlib, json
@@ -28,11 +36,24 @@ jobs:
               Path(name).write_bytes(content)
           source.unlink()
           PY
-      - name: Commit readable source files
+      - name: Vendor the pinned Supabase SDK
         run: |
+          set -euo pipefail
+          mkdir -p vendor
+          PACK=$(npm pack @supabase/supabase-js@2.117.2 --ignore-scripts --silent --pack-destination "$RUNNER_TEMP")
+          tar -xzf "$RUNNER_TEMP/$PACK" -C "$RUNNER_TEMP" package/dist/umd/supabase.js
+          cp "$RUNNER_TEMP/package/dist/umd/supabase.js" vendor/supabase.js
+          curl --fail --silent --show-error --location --retry 3 'https://raw.githubusercontent.com/supabase/supabase-js/v2.117.2/LICENSE' -o vendor/LICENSE
+          sha256sum vendor/supabase.js > vendor/CHECKSUMS.sha256
+          node --check dashboard.js
+          node --check vendor/supabase.js
+      - name: Commit readable application sources
+        run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html dashboard.css .import/
+          git add index.html dashboard.css vendor/
+          git add -u
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Import original dashboard layout and styles'
+          git commit -m 'Import preserved dashboard layout and pinned browser SDK'
           git push origin HEAD:main
