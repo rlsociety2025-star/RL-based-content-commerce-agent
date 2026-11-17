@@ -1,0 +1,10 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+/
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://hfqqqetcjbkptipqhskx.supabase.co wss://hfqqqetcjbkptipqhskx.supabase.co; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+  Cache-Control: no-cache
+/index.html
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://hfqqqetcjbkptipqhskx.supabase.co wss://hfqqqetcjbkptipqhskx.supabase.co; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+  Cache-Control: no-cache
