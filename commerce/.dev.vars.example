@@ -1,0 +1,6 @@
+# Copy to .dev.vars only for local testing. Never commit the filled file.
+# Use a NEW rotated Google key, not the key previously pasted into chat.
+GEMINI_API_KEY=""
+QDRANT_API_KEY=""
+QDRANT_URL=""
+AI_CALLS_ENABLED="false"
