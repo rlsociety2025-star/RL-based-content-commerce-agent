@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker,{sha,chunks,parseCandidates,embed,httpsUrl} from '../worker.mjs';
+import worker,{sha,chunks,parseCandidates,embed,httpsUrl,llmSettings,generateText,probeModel} from '../worker.mjs';
 const U='11111111-1111-4111-a111-111111111111',D='22222222-2222-4222-a222-222222222222',P='33333333-3333-4333-a333-333333333333',R='44444444-4444-4444-a444-444444444444';
 const body='검증한 출퇴근용 가방 선택 기준입니다. 노트북 수납 규격과 무게를 확인합니다.';
 const hash=await sha(body);
@@ -17,6 +17,7 @@ function mock(options={}) {const calls=[];globalThis.fetch=async(url,init={})=>{
  else if(u.pathname.endsWith('/cc_runs')){if(init.method==='POST'){if(options.saveFail)status=500;response=[{...JSON.parse(init.body),created_at:'2026-11-17T00:00:00Z'}];}else response=options.old?[{id:R,candidates:[candidate]}]:[];}
  else if(u.pathname.endsWith('/cc_reviews'))response=[];else throw Error('unexpected db '+u.pathname);}
  else if(u.hostname.includes('qdrant.io')){if(u.pathname.endsWith('/points/query'))response={result:{points:options.noHits?[]:[{score:.8,payload:{document_id:D,content_hash:hash,chunk_index:0}}]}};else if(u.pathname.endsWith('/index')||u.pathname.endsWith('/points'))response={result:{status:'completed'}};else{status=options.collectionMissing?404:200;response={result:{config:{params:{vectors:{size:options.badDimension?768:1024,distance:'Cosine'}}}}};}}
+ else if(u.hostname==='api.anthropic.com'){response=u.pathname.startsWith('/v1/models/')?{id:'claude-haiku-4-5-20251001'}:{stop_reason:options.truncated?'max_tokens':'end_turn',content:[{type:'text',text:options.badJSON?'not json':JSON.stringify({candidates:[candidate]})}]};}
  else if(u.hostname==='generativelanguage.googleapis.com')response={candidates:[{content:{parts:[{text:options.badJSON?'not json':JSON.stringify({candidates:[candidate]})}]}}]};
  else throw Error('unexpected network '+u.href);
  return new Response(JSON.stringify(response),{status,headers:{'content-type':'application/json'}});};return calls;}
@@ -47,3 +48,14 @@ test('no arbitrary endpoint supplied in request',async()=>{mock();const e=env();
 test('source creation is draft, not client-provided verified',async()=>{mock();const r=await worker.fetch(req('sources',{title:'노트',body,source_uri:'source.md',status:'verified'}),env());assert.equal(r.status,201);assert.equal((await r.json()).document.status,'draft');});
 test('safe href validation and source chunk size',()=>{assert.throws(()=>httpsUrl('javascript:alert(1)'));assert.throws(()=>httpsUrl('https://a:b@example.com'));assert.equal(chunks('가'.repeat(3000)).length,3);assert.ok(chunks('가'.repeat(3000)).every(x=>x.length<=1400));});
 test('static paths served without touching backend',async()=>{const calls=mock();const r=await worker.fetch(new Request('https://test.workers.dev/'),env());assert.equal(await r.text(),'static');assert.equal(calls.length,0);});
+
+const claudeEnv=()=>({...env(),LLM_PROVIDER:'claude',ANTHROPIC_API_KEY:'PRIVATE-ANTHROPIC-TEST'});
+test('Claude config names selected model without secrets',async()=>{mock();const r=await worker.fetch(req('config',undefined,false),claudeEnv());const s=await r.text();assert.ok(!s.includes('PRIVATE-'));const c=JSON.parse(s);assert.equal(c.provider,'claude');assert.equal(c.modelLabel,'Claude');assert.equal(c.configured.llm,true);});
+test('Claude Messages full route saves validated result and caps output',async()=>{const calls=mock();const r=await worker.fetch(req('generate',generation),claudeEnv());assert.equal(r.status,201);const result=await r.json();assert.equal(result.run.model,'claude-haiku-4-5-20251001');const c=calls.find(c=>c.url==='https://api.anthropic.com/v1/messages');assert.ok(c);assert.equal(c.redirect,'manual');assert.equal(c.headers['x-api-key'],'PRIVATE-ANTHROPIC-TEST');assert.equal(c.headers['anthropic-version'],'2023-06-01');assert.equal(JSON.parse(c.body).max_tokens,3072);assert.ok(!calls.some(c=>c.url.includes('googleapis')));});
+test('Claude does not fall back to Google when key missing',async()=>{const calls=mock();const e=claudeEnv();delete e.ANTHROPIC_API_KEY;assert.equal((await worker.fetch(req('generate',generation),e)).status,503);assert.ok(!calls.some(c=>c.url.includes('anthropic')||c.url.includes('googleapis')));});
+test('Claude retains explicit cost gate and approval check',async()=>{let calls=mock();let e=claudeEnv();e.AI_CALLS_ENABLED='false';assert.equal((await worker.fetch(req('generate',generation),e)).status,503);assert.ok(!calls.some(c=>c.url.includes('anthropic')));calls=mock({unapproved:true});assert.equal((await worker.fetch(req('generate',generation),claudeEnv())).status,403);assert.ok(!calls.some(c=>c.url.includes('anthropic')));});
+test('Claude truncated result not stored or retried',async()=>{const calls=mock({truncated:true});assert.equal((await worker.fetch(req('generate',generation),claudeEnv())).status,502);assert.equal(calls.filter(c=>c.url.includes('/v1/messages')).length,1);assert.ok(!calls.some(c=>c.url.endsWith('/cc_runs')&&c.method==='POST'));});
+test('Claude malformed JSON not stored',async()=>{const calls=mock({badJSON:true});assert.equal((await worker.fetch(req('generate',generation),claudeEnv())).status,502);assert.ok(!calls.some(c=>c.url.endsWith('/cc_runs')&&c.method==='POST'));});
+test('model probe is GET only and never generates',async()=>{const calls=mock();const r=await probeModel(claudeEnv());assert.equal(r.status,'model_access_confirmed');assert.equal(calls.length,1);assert.ok(calls[0].url.includes('/v1/models/'));assert.ok(!calls[0].method||calls[0].method==='GET');});
+test('provider and model path validation fail closed',()=>{assert.throws(()=>llmSettings({LLM_PROVIDER:'unknown'}));assert.throws(()=>llmSettings({LLM_PROVIDER:'claude',CLAUDE_MODEL:'../messages'}));});
+test('Workers redirect manual rejects redirect without leaking key',async()=>{globalThis.fetch=async(_url,init)=>{assert.equal(init.redirect,'manual');return new Response('',{status:302,headers:{location:'https://evil.invalid'}});};await assert.rejects(()=>probeModel(claudeEnv()),e=>e.code==='UPSTREAM_ERROR');});

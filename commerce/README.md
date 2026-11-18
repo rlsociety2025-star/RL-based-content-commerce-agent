@@ -1,3 +1,18 @@
+# Claude 연결 전환 (2026-11-18)
+
+배포 설정은 `LLM_PROVIDER=claude`, `CLAUDE_MODEL=claude-haiku-4-5-20251001`을 선택합니다. 기존 Gemma 코드는 `LLM_PROVIDER=gemma`로 명시할 때만 사용할 수 있습니다. 다른 제공자로 자동 fallback하지 않습니다.
+
+1. 채팅에 노출되지 않은 새 키를 Cloudflare 런타임 Secret `ANTHROPIC_API_KEY`에 직접 저장합니다. 채팅·GitHub·브라우저 코드에 키를 넣지 마세요.
+2. Qdrant URL/키와 임베딩 바인딩은 별도로 필요합니다. 기존 컬렉션은 삭제하지 않습니다.
+3. `실제 연결 점검`의 모델 GET 조회는 생성 요청이 아닙니다. 모델 접근 확인과 실제 생성/과금 확인은 구분합니다.
+4. 실제 샘플 테스트에 동의하기 전 `AI_CALLS_ENABLED`는 false/미설정으로 유지합니다. 생성 시 주제·선택 상품·검색 근거가 Anthropic에 전송되고, 색인/검색 텍스트는 Cloudflare에 전달됩니다. 외부 전송 가능한 자료만 사용하세요.
+5. 기존 사용자별 5회/60초 제한과 출력 3072 토큰 상한을 유지합니다. 이는 월 지출 상한이 아닙니다. Anthropic Console에서 별도 지출 한도를 설정하세요. 자동 재시도·자동 fallback은 없습니다.
+
+구문·회귀 검사는 `npm run check`. 실제 키·모델/클러스터·사용자 세션으로의 종단간 검증은 별도입니다. API: https://platform.claude.com/docs/en/api/messages/create , 모델 조회: https://platform.claude.com/docs/en/api/models/retrieve
+
+---
+아래는 기존 Gemma 배포 참고 문서입니다. 위 Claude 설정이 우선합니다.
+
 # 콘텐츠커머스 실연동 워크벤치 · Cloudflare Workers
 
 기존 `rlsociety2025-star/RL-based-content-commerce-agent` 저장소 안의 독립 앱입니다. `gyedong-seasons`와 D1 투표 데이터는 수정하지 않습니다. 기존 프로젝트 대시보드는 배포 시 `/project/`에 복사하며 원본을 변경하지 않습니다.
