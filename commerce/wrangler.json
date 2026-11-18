@@ -30,7 +30,8 @@
     "GEMMA_MODEL": "gemma-4-26b-a4b-it",
     "QDRANT_COLLECTION": "content_commerce_bge_m3_v1",
     "LLM_PROVIDER": "claude",
-    "CLAUDE_MODEL": "claude-haiku-4-5-20251001"
+    "CLAUDE_MODEL": "claude-haiku-4-5-20251001",
+    "AI_CALLS_ENABLED": "true"
   },
   "observability": {
     "enabled": false

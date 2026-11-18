@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker,{sha,chunks,parseCandidates,embed,httpsUrl,llmSettings,generateText,probeModel} from '../worker.mjs';
+import worker,{sha,chunks,parseCandidates,embed,httpsUrl,llmSettings,generateText,probeModel,vectorLayout} from '../worker.mjs';
 const U='11111111-1111-4111-a111-111111111111',D='22222222-2222-4222-a222-222222222222',P='33333333-3333-4333-a333-333333333333',R='44444444-4444-4444-a444-444444444444';
 const body='검증한 출퇴근용 가방 선택 기준입니다. 노트북 수납 규격과 무게를 확인합니다.';
 const hash=await sha(body);
@@ -16,7 +16,7 @@ function mock(options={}) {const calls=[];globalThis.fetch=async(url,init={})=>{
  else if(u.pathname.endsWith('/cc_products'))response=[product];
  else if(u.pathname.endsWith('/cc_runs')){if(init.method==='POST'){if(options.saveFail)status=500;response=[{...JSON.parse(init.body),created_at:'2026-11-17T00:00:00Z'}];}else response=options.old?[{id:R,candidates:[candidate]}]:[];}
  else if(u.pathname.endsWith('/cc_reviews'))response=[];else throw Error('unexpected db '+u.pathname);}
- else if(u.hostname.includes('qdrant.io')){if(u.pathname.endsWith('/points/query'))response={result:{points:options.noHits?[]:[{score:.8,payload:{document_id:D,content_hash:hash,chunk_index:0}}]}};else if(u.pathname.endsWith('/index')||u.pathname.endsWith('/points'))response={result:{status:'completed'}};else{status=options.collectionMissing?404:200;response={result:{config:{params:{vectors:{size:options.badDimension?768:1024,distance:'Cosine'}}}}};}}
+ else if(u.hostname.includes('qdrant.io')){if(u.pathname.endsWith('/points/query'))response={result:{points:options.noHits?[]:[{score:.8,payload:{document_id:D,content_hash:hash,chunk_index:0}}]}};else if(u.pathname.endsWith('/index')||u.pathname.endsWith('/points'))response={result:{status:'completed'}};else{status=options.collectionMissing?404:200;response={result:{config:{params:{vectors:options.vectorConfig||{size:options.badDimension?768:1024,distance:'Cosine'}}}}};}}
  else if(u.hostname==='api.anthropic.com'){response=u.pathname.startsWith('/v1/models/')?{id:'claude-haiku-4-5-20251001'}:{stop_reason:options.truncated?'max_tokens':'end_turn',content:[{type:'text',text:options.badJSON?'not json':JSON.stringify({candidates:[candidate]})}]};}
  else if(u.hostname==='generativelanguage.googleapis.com')response={candidates:[{content:{parts:[{text:options.badJSON?'not json':JSON.stringify({candidates:[candidate]})}]}}]};
  else throw Error('unexpected network '+u.href);
@@ -59,3 +59,34 @@ test('Claude malformed JSON not stored',async()=>{const calls=mock({badJSON:true
 test('model probe is GET only and never generates',async()=>{const calls=mock();const r=await probeModel(claudeEnv());assert.equal(r.status,'model_access_confirmed');assert.equal(calls.length,1);assert.ok(calls[0].url.includes('/v1/models/'));assert.ok(!calls[0].method||calls[0].method==='GET');});
 test('provider and model path validation fail closed',()=>{assert.throws(()=>llmSettings({LLM_PROVIDER:'unknown'}));assert.throws(()=>llmSettings({LLM_PROVIDER:'claude',CLAUDE_MODEL:'../messages'}));});
 test('Workers redirect manual rejects redirect without leaking key',async()=>{globalThis.fetch=async(_url,init)=>{assert.equal(init.redirect,'manual');return new Response('',{status:302,headers:{location:'https://evil.invalid'}});};await assert.rejects(()=>probeModel(claudeEnv()),e=>e.code==='UPSTREAM_ERROR');});
+
+test('vector layout accepts unnamed and sole empty-name map',()=>{
+ assert.deepEqual(vectorLayout({size:1024,distance:'Cosine'}),{name:null});
+ assert.deepEqual(vectorLayout({'':{size:1024,distance:'Cosine',hnsw_config:{m:24},datatype:'float32'}}),{name:''});
+});
+test('vector layout rejects incompatible or ambiguous spaces',()=>{
+ for(const v of [null,[],{}, {'':{size:768,distance:'Cosine'}},{'':{size:1024,distance:'Dot'}},{other:{size:1024,distance:'Cosine'}},{'':{size:1024,distance:'Cosine'},other:{size:1024,distance:'Cosine'}},{size:1024,distance:'Cosine',multivector_config:{comparator:'max_sim'}}])assert.throws(()=>vectorLayout(v));
+});
+test('empty-name map indexing preserves name and payload indexes',async()=>{
+ const calls=mock({vectorConfig:{'':{size:1024,distance:'Cosine'}}});
+ const r=await worker.fetch(req(`sources/${D}/index`,{}),env());assert.equal(r.status,200);
+ const point=JSON.parse(calls.find(c=>c.url.includes('/points?')).body).points[0];
+ assert.deepEqual(Object.keys(point.vector),['']);assert.equal(point.vector[''].length,1024);assert.equal(point.payload.content_hash,hash);
+ assert.equal(calls.filter(c=>c.url.includes('/index?')).length,4);
+ assert.ok(!calls.some(c=>c.method==='DELETE'||(c.method==='PUT'&&!c.url.includes('/index?')&&!c.url.includes('/points?'))));
+});
+test('empty-name map search uses explicit empty using',async()=>{
+ const calls=mock({vectorConfig:{'':{size:1024,distance:'Cosine'}}});
+ assert.equal((await worker.fetch(req('search',{query:'백팩'}),env())).status,200);
+ const q=JSON.parse(calls.find(c=>c.url.includes('/points/query')).body);assert.equal(q.using,'');assert.equal(q.query.length,1024);
+ assert.equal(q.filter.must.length,3);
+});
+test('unnamed search retains original query shape',async()=>{
+ const calls=mock();assert.equal((await worker.fetch(req('search',{query:'백팩'}),env())).status,200);
+ assert.ok(!Object.hasOwn(JSON.parse(calls.find(c=>c.url.includes('/points/query')).body),'using'));
+});
+test('incompatible map stops before embedding or writes',async()=>{
+ const calls=mock({vectorConfig:{'':{size:768,distance:'Cosine'}}});let embeddings=0;const e=env();e.AI.run=async()=>{embeddings++;throw Error();};
+ assert.equal((await worker.fetch(req(`sources/${D}/index`,{}),e)).status,409);
+ assert.equal(embeddings,0);assert.ok(!calls.some(c=>c.method==='PUT'||c.method==='PATCH'||c.method==='DELETE'));
+});
