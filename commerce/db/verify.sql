@@ -5,3 +5,8 @@ select table_name,grantee,privilege_type from information_schema.role_table_gran
 select has_table_privilege('anon','public.cc_runs','SELECT') as anonymous_read_expected_false,
        has_table_privilege('authenticated','public.cc_runs','DELETE') as deletion_expected_false,
        has_column_privilege('authenticated','public.cc_sources','body','UPDATE') as source_rewrite_expected_false;
+
+-- Must include existing gemma-% plus the explicitly deployed Claude model.
+select conname, pg_get_constraintdef(oid) as definition
+from pg_constraint
+where conrelid = 'public.cc_runs'::regclass and conname = 'cc_runs_model_check';

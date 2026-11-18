@@ -2,6 +2,8 @@
 
 배포 설정은 `LLM_PROVIDER=claude`, `CLAUDE_MODEL=claude-haiku-4-5-20251001`을 선택합니다. 기존 Gemma 코드는 `LLM_PROVIDER=gemma`로 명시할 때만 사용할 수 있습니다. 다른 제공자로 자동 fallback하지 않습니다.
 
+0. 기존 DB에는 `db/002_claude_model.sql`을 적용하고 `db/verify.sql`의 `cc_runs_model_check` 결과를 먼저 확인합니다. 신규 DB는 수정된 `001_real_integrations.sql`을 사용합니다. 허용 모델은 기존 `gemma-%`와 정확한 `claude-haiku-4-5-20251001`뿐입니다. Worker 모델을 바꾸면 DB 허용 목록도 생성 호출 전에 확인해야 합니다.
+   - 생성 성공 뒤 DB 저장 실패가 나면 **생성 버튼을 다시 누르지 마세요**. 비용이 이미 발생했을 수 있습니다. 현재 버전은 미저장 응답을 복구·재저장하는 기능이 없으며, 같은 request_id도 저장된 기록이 없으면 재호출을 막지 못합니다.
 1. 채팅에 노출되지 않은 새 키를 Cloudflare 런타임 Secret `ANTHROPIC_API_KEY`에 직접 저장합니다. 채팅·GitHub·브라우저 코드에 키를 넣지 마세요.
 2. Qdrant URL/키와 임베딩 바인딩은 별도로 필요합니다. 기존 컬렉션은 삭제하지 않습니다.
 3. `실제 연결 점검`의 모델 GET 조회는 생성 요청이 아닙니다. 모델 접근 확인과 실제 생성/과금 확인은 구분합니다.
@@ -9,6 +11,8 @@
 5. 기존 사용자별 5회/60초 제한과 출력 3072 토큰 상한을 유지합니다. 이는 월 지출 상한이 아닙니다. Anthropic Console에서 별도 지출 한도를 설정하세요. 자동 재시도·자동 fallback은 없습니다.
 
 구문·회귀 검사는 `npm run check`. 실제 키·모델/클러스터·사용자 세션으로의 종단간 검증은 별도입니다. API: https://platform.claude.com/docs/en/api/messages/create , 모델 조회: https://platform.claude.com/docs/en/api/models/retrieve
+
+저장한 초안은 **실행 기록 → 저장 결과 열기**에서 유료 재생성 없이 다시 볼 수 있습니다. 동일 사용자 세션 갱신은 표시 중인 초안을 지우지 않으며, 로그아웃·계정 전환 시에는 즉시 화면을 비웁니다.
 
 ---
 아래는 기존 Gemma 배포 참고 문서입니다. 위 Claude 설정이 우선합니다.

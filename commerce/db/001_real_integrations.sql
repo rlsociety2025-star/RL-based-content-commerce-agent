@@ -35,7 +35,7 @@ create table public.cc_runs (
  created_by uuid not null references auth.users(id),
  created_at timestamptz not null default now(),
  query text not null check(char_length(query) between 3 and 1200),
- model text not null check(model like 'gemma-%'),
+ model text not null check(model like 'gemma-%' or model = 'claude-haiku-4-5-20251001'),
  embedding_model text not null check(embedding_model='@cf/baai/bge-m3'),
  candidates jsonb not null check(jsonb_typeof(candidates)='array' and jsonb_array_length(candidates) between 1 and 3),
  retrieved_sources jsonb not null check(jsonb_typeof(retrieved_sources)='array' and jsonb_array_length(retrieved_sources) between 1 and 5),
