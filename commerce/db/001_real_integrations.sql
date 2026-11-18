@@ -107,4 +107,5 @@ create index cc_sources_verified_by_idx on public.cc_sources(verified_by);
 create index cc_reviews_run_idx on public.cc_reviews(run_id);
 comment on table public.cc_runs is 'Real API integration results, NOT real sales results. reward is always null; do not import simulation rewards here.';
 comment on table public.cc_sources is 'Immutable document revisions. Reviewer approval controls eligibility for indexing. Canonical status is checked after Qdrant search.';
+create unique index cc_sources_inbox_revision_unique on public.cc_sources(created_by,source_uri) where source_uri like 'obsidian-inbox:ContentCommerce-Inbox/%';
 commit;

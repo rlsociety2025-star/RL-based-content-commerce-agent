@@ -10,3 +10,5 @@ select has_table_privilege('anon','public.cc_runs','SELECT') as anonymous_read_e
 select conname, pg_get_constraintdef(oid) as definition
 from pg_constraint
 where conrelid = 'public.cc_runs'::regclass and conname = 'cc_runs_model_check';
+
+select indexname,indexdef from pg_indexes where schemaname='public' and indexname='cc_sources_inbox_revision_unique';
