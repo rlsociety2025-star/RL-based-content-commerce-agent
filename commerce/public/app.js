@@ -6,7 +6,7 @@ const node=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.classNam
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),5000);}
 function banner(t,error=false){$('#banner').textContent=t;$('#banner').classList.toggle('error',error);}
 function lock(on){$$('[data-private]').forEach(b=>b.disabled=on);}
-function clear(){window.commerceImporter?.stop('로그인 상태 변경으로 가져오기를 중지했습니다.');approved=false;session=null;products=[];runs=[];reviews=[];for(const n of ['sources','products','product-select','evidence','candidates','runs','reviews'])$('#'+n).replaceChildren(node('p','empty','로그인과 팀원 승인 후 표시됩니다.'));lock(true);}
+function clear(){window.commerceAutomation?.reset();window.commerceImporter?.stop('로그인 상태 변경으로 가져오기를 중지했습니다.');approved=false;session=null;products=[];runs=[];reviews=[];for(const n of ['sources','products','product-select','evidence','candidates','runs','reviews'])$('#'+n).replaceChildren(node('p','empty','로그인과 팀원 승인 후 표시됩니다.'));lock(true);}
 function tab(name){$$('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));$$('.pane').forEach(p=>p.classList.toggle('active',p.id===name));}
 $$('[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 async function api(path,body,expectedUser=null){const revision=epoch;if(!client)throw Error('연결 설정을 먼저 확인하세요.');const {data,error}=await client.auth.getSession();if(error||!data.session){clear();throw Error('로그인이 필요합니다.');}if(expectedUser&&data.session.user?.id!==expectedUser)throw Error('로그인 계정이 바뀌어 가져오기를 중단했습니다.');const token=data.session.access_token;const r=await fetch('/api/'+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+token,'content-type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),cache:'no-store'});const result=await r.json();if(revision!==epoch)throw Error('로그인 상태가 변경돼 이전 요청을 취소했습니다.');if(!r.ok){if(r.status===401||r.status===403){clear();}throw Object.assign(Error(result.message||'요청 실패'),{status:r.status,code:result.error});}return result;}
@@ -51,6 +51,7 @@ function setupTeamAuth(){
  if(location.hash==='#signup'){setMode('signup');dialog.showModal();history.replaceState(null,'',location.pathname+location.search);}
 }
 setupTeamAuth();
+window.commerceAutomation=window.CommerceAutomation.mount({api,user:()=>approved?session?.user?.id:null});
 window.commerceImporter=window.CommerceInbox.mount({api,user:()=>approved?session?.user?.id:null,changed:async()=>{const r=await api('sources');renderSources(r.items);}});
 $('#source-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget;task(async()=>{await api('sources',Object.fromEntries(new FormData(form)));form.reset();await reloadAll();toast('검토 전 초안으로 저장했습니다.');});};
 $('#product-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget;task(async()=>{await api('products',Object.fromEntries(new FormData(form)));form.reset();await reloadAll();toast('상품을 저장했습니다.');});};

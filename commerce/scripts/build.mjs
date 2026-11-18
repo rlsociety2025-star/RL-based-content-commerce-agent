@@ -3,7 +3,7 @@ import {fileURLToPath} from 'node:url';
 import {resolve,dirname} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-for(const file of ['worker.mjs','public/app.js','public/inbox.js']){
+for(const file of ['worker.mjs','queue.mjs','performance.mjs','public/app.js','public/inbox.js','public/automation.js']){
  const r=spawnSync(process.execPath,['--check',resolve(root,file)],{stdio:'inherit'});
  if(r.status!==0)process.exit(r.status||1);
 }
@@ -19,6 +19,6 @@ try{await cp(resolve(root,'../vendor'),resolve(root,'dist/vendor'),{recursive:tr
 }
 await access(resolve(root,'dist/vendor/supabase.js'));
 const html=await readFile(resolve(root,'dist/index.html'),'utf8');
-for(const name of ['/app.js','/inbox.js','/style.css','/vendor/supabase.js'])if(!html.includes(name))throw Error('Missing asset '+name);
+for(const name of ['/app.js','/inbox.js','/automation.js','/style.css','/vendor/supabase.js'])if(!html.includes(name))throw Error('Missing asset '+name);
 await writeFile(resolve(root,'dist/build-info.json'),JSON.stringify({version:'0.1.0',builtAt:new Date().toISOString(),scope:'real-connectors; no Naver execution; no real reward training'},null,2));
 console.log('Cloudflare assets ready. Secrets are not copied to dist.');
