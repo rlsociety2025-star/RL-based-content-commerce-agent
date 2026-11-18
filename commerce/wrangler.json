@@ -34,5 +34,6 @@
   },
   "observability": {
     "enabled": false
-  }
+  },
+  "keep_vars": true
 }
