@@ -91,3 +91,27 @@ test('lost POST response recovers same record without duplicate write',async()=>
 test('unapproved import is denied without inserting',async()=>{
  const b=backend({unapproved:true});assert.equal((await worker.fetch(req(input),E)).status,403);assert.equal(b.posts(),0);
 });
+
+test('stopping then restarting collects notes added during stop without reimporting seen content',async()=>{
+ const items=[file('first.md')],c=client();await c.s.choose(folder(items));await c.s.start();
+ c.s.stop();items.push(file('second.md',BODY+' 새 노트'));await c.s.tick();assert.equal(c.calls.length,1);
+ await c.s.start();assert.equal(c.calls.length,2);assert.equal(c.calls[1][1].filename,'second.md');
+});
+test('page reload starts disconnected; explicit reselect/start deduplicates against server',async()=>{
+ const b=backend(),items=[file('first.md')];
+ const make=()=>client({api:async(_path,payload)=>{const response=await worker.fetch(req(payload),E);if(!response.ok)throw Error('save');return response.json();}});
+ const first=make();await first.s.choose(folder(items));await first.s.start();first.s.stop();
+ items.push(file('second.md',BODY+' 두 번째'));
+ const reloaded=make();assert.equal(reloaded.s.getState(),'unselected');assert.equal(reloaded.s.isActive(),false);
+ await reloaded.s.tick();assert.equal(b.records.length,1);
+ await reloaded.s.choose(folder(items));assert.equal(b.records.length,1);
+ await reloaded.s.start();assert.equal(b.records.length,2);assert.equal(b.posts(),2);
+ assert.ok(b.records.every(r=>r.status==='draft'));
+});
+test('state labels distinguish ready running hidden-tab pause and explicit stop',async()=>{
+ let visible=false;const messages=[];const c=client({visible:()=>visible,status:s=>messages.push(s)});
+ assert.equal(c.s.getState(),'unselected');await c.s.choose(folder());assert.equal(c.s.getState(),'ready');
+ await c.s.start();assert.equal(c.s.getState(),'paused');assert.equal(c.s.isActive(),true);
+ visible=true;await c.s.tick();assert.equal(c.s.getState(),'running');c.s.stop();assert.equal(c.s.getState(),'stopped');
+ assert.ok(messages.some(s=>s.startsWith('[일시정지]')));assert.ok(messages.at(-1).includes('다시 시작'));
+});

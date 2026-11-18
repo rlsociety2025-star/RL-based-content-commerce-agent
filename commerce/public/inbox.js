@@ -12,19 +12,22 @@ async function entries(handle){
  return files.sort((a,b)=>a.name.localeCompare(b.name));
 }
 function normalize(body){return body.replace(/\r\n?/g,'\n').trim();}
-function createSync({api,user,visible=()=>true,changed=async()=>{},status=()=>{},schedule=setTimeout,cancel=clearTimeout}){
+function createSync({api,user,visible=()=>true,changed=async()=>{},status=()=>{},stateChanged=()=>{},schedule=setTimeout,cancel=clearTimeout}){
  let folder=null,owner=null,active=false,busy=false,timer=null,generation=0,seen=new Map();
+ let state='unselected';
+ const labels={unselected:'미연결',ready:'시작 전',running:'실행 중',paused:'일시정지',stopped:'중지'};
+ function report(next,message){state=next;status('['+labels[next]+'] '+message);stateChanged(next);}
  const allowed=n=>active&&n===generation&&owner&&user()===owner;
- function stop(message='중지됨. 이미 전송한 요청은 완료될 수 있습니다.'){active=false;generation++;if(timer)cancel(timer);timer=null;status(message);}
- async function choose(handle){stop('폴더 확인 중');const list=await entries(handle);folder=handle;seen=new Map();status(FOLDER+' · 대상 '+list.length+'개 (.md, 최상위만). 아직 전송하지 않았습니다.');return list;}
- async function start(){if(!folder)throw Error('전용 폴더를 먼저 선택하세요.');const current=user();if(!current)throw Error('승인된 팀 계정으로 로그인하세요.');if(active)return;if(busy)throw Error('진행 중 요청이 끝난 뒤 다시 시작하세요.');owner=current;active=true;generation++;await tick();}
+ function stop(message='새 노트는 수집하지 않습니다. 다시 시작을 누르면 중지 중 추가된 노트도 확인합니다. 이미 전송한 요청은 완료될 수 있습니다.'){active=false;generation++;if(timer)cancel(timer);timer=null;report(folder?'stopped':'unselected',message);}
+ async function choose(handle){stop('폴더 확인 중');const list=await entries(handle);folder=handle;seen=new Map();report('ready',FOLDER+' · 대상 '+list.length+'개 (.md, 최상위만). 아직 전송하지 않았습니다.');return list;}
+ async function start(){if(!folder)throw Error('전용 폴더를 먼저 선택하세요.');const current=user();if(!current)throw Error('승인된 팀 계정으로 로그인하세요.');if(active)return;if(busy)throw Error('진행 중 요청이 끝난 뒤 다시 시작하세요.');owner=current;active=true;generation++;report('running','폴더 변경을 확인합니다.');await tick();}
  async function tick(){
   if(!active||busy)return;
   const n=generation;
   if(!allowed(n)){stop('로그인 계정이 바뀌어 중지했습니다.');return;}
   busy=true;let saved=0,reused=0,errors=[];
   try{
-   if(!visible()){status('탭이 숨겨져 일시정지 중입니다. 탭으로 돌아오면 다시 확인합니다.');return;}
+   if(!visible()){report('paused','탭이 숨겨져 일시정지 중입니다. 탭으로 돌아오면 다시 확인합니다.');return;}
    if(await folder.queryPermission({mode:'read'})!=='granted'){stop('폴더 읽기 권한이 없어 중지했습니다. 다시 선택하세요.');return;}
    const files=await entries(folder);
    for(const item of files){
@@ -46,17 +49,17 @@ function createSync({api,user,visible=()=>true,changed=async()=>{},status=()=>{}
     }catch(e){errors.push(item.name+': '+(e.message||'읽기/저장 실패'));if(!allowed(n))break;}
    }
    if(allowed(n)){
-    status('마지막 확인 '+new Date().toLocaleTimeString('ko-KR')+' · 대상 '+files.length+'개 · 새 초안 '+saved+' · 기존 동일본 '+reused+(errors.length?' · 오류 '+errors.join(' / '):' · 15초마다 확인'));
+    report('running','마지막 확인 '+new Date().toLocaleTimeString('ko-KR')+' · 대상 '+files.length+'개 · 새 초안 '+saved+' · 기존 동일본 '+reused+(errors.length?' · 오류 '+errors.join(' / '):' · 15초마다 확인'));
     if(saved||reused)await changed();
    }
-  }catch(e){if(allowed(n))status('확인 실패: '+e.message+' · 전송 실패 파일은 다음 확인 때 재시도합니다.');}
+  }catch(e){if(allowed(n))report('running','확인 실패: '+e.message+' · 전송 실패 파일은 다음 확인 때 재시도합니다.');}
   finally{busy=false;if(active&&n===generation&&user()!==owner)stop('로그인 계정이 바뀌어 중지했습니다.');if(allowed(n))timer=schedule(tick,15000);}
  }
- return {choose,start,stop,tick,isActive:()=>active};
+ return {choose,start,stop,tick,isActive:()=>active,getState:()=>state};
 }
 function mount({api,user,changed}){
  const el=id=>document.getElementById(id),status=t=>{el('inbox-status').textContent=t;};
- const sync=createSync({api,user,changed,status,visible:()=>!document.hidden});
+ const sync=createSync({api,user,changed,status,stateChanged:state=>{el('inbox-start').textContent=state==='stopped'?'가져오기 다시 시작':state==='running'||state==='paused'?'가져오기 실행 중':'자동 가져오기 시작';},visible:()=>!document.hidden});
  let selected=false;
  el('inbox-select').onclick=async()=>{try{
   if(!user())throw Error('승인된 팀 계정으로 로그인하세요.');
