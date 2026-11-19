@@ -18,18 +18,65 @@ function createRunner({api,user,visible=()=>true,status=()=>{},refresh=async()=>
  async function start(){if(active)return;if(busy)throw Error('진행 중 요청이 끝난 뒤 시작하세요.');owner=user();if(!owner)throw Error('승인된 팀 계정으로 로그인하세요.');active=true;revision++;await tick();}
  return {start,stop,tick,isActive:()=>active};
 }
+function createReviewEnqueuer({api,user,uuid=()=>crypto.randomUUID()}){
+ let busy=false;const attempts=new Map();
+ const problem=(stage,message)=>Object.assign(Error(message),{stage});
+ async function submit({source,product_ids,query,confirmed}){
+  if(busy)throw problem('busy','이미 처리 중입니다. 완료될 때까지 기다리세요.');
+  const owner=user();if(!owner)throw problem('auth','승인된 팀 계정으로 로그인하세요.');
+  if(!source?.id||!source.content_hash)throw problem('input','근거 원문을 먼저 선택하세요.');
+  const ids=[...new Set(product_ids||[])].sort(),topic=typeof query==='string'?query.trim():'';
+  const validId=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
+  if(ids.length<1||ids.length>3||!ids.every(validId)||topic.length<3||topic.length>1200)throw problem('input','상품 1~3개와 3~1,200자 주제를 먼저 준비하세요.');
+  if(source.status==='archived')throw problem('input','검색 제외 자료는 이 버튼으로 다시 승인하지 않습니다.');
+  if(source.status!=='verified'&&confirmed!==true)throw problem('confirmation','원문과 출처를 직접 검토했다는 확인이 필요합니다.');
+  const unchanged=()=>{if(user()!==owner)throw problem('auth','로그인 상태가 바뀌어 후속 대기열 등록을 중단했습니다.');};
+  busy=true;
+  try{
+   const fresh=await api('sources',undefined,owner);unchanged();
+   const current=fresh.items?.find(x=>x.id===source.id);
+   if(!current||['content_hash','body','title','source_uri'].some(k=>current[k]!==source[k]))throw problem('revision','원문 버전이 달라졌습니다. 목록을 다시 읽고 원문을 재검토하세요.');
+   if(current.status==='archived')throw problem('revision','자료가 검색 제외 상태로 바뀌었습니다. 대기열에 등록하지 않았습니다.');
+   let reviewed=current,reviewedNow=false;
+   if(current.status!=='verified'){
+    if(confirmed!==true)throw problem('confirmation','현재 자료는 검토 전입니다. 원문을 다시 확인하고 체크하세요.');
+    try{const r=await api('sources/'+source.id+'/verify',{confirmed:true},owner);unchanged();reviewed=r.document;
+     if(reviewed?.id!==source.id||reviewed.status!=='verified'||reviewed.content_hash!==source.content_hash)throw Error('unconfirmed');
+    }catch(e){if(e.stage==='auth')throw e;throw problem('review_unknown','검토 완료 여부를 확인하지 못했습니다. 대기열 등록은 요청하지 않았습니다. 목록에서 상태를 확인한 뒤 다시 시도하세요.');}
+    reviewedNow=true;
+   }
+   unchanged();
+   const key=JSON.stringify([owner,source.id,source.content_hash,ids,topic]);
+   if(!attempts.has(key))attempts.set(key,uuid());
+   let result;
+   try{result=await api('automation/jobs',{source_id:source.id,product_ids:ids,query:topic,request_id:attempts.get(key)},owner);unchanged();
+    if(!result?.job?.id)throw Error('unconfirmed');
+   }catch(e){if(e.stage==='auth')throw e;throw problem('queue_unknown','검토 완료는 확인했지만 대기열 등록 결과는 확인하지 못했습니다. 검토 승인은 취소하지 않았습니다. 같은 입력으로 다시 시도하면 기존 작업을 재사용합니다.');}
+   return {...result,reviewedNow};
+  }finally{busy=false;}
+ }
+ return {submit,isBusy:()=>busy};
+}
+
 function mount({api,user}){
  const $=id=>document.getElementById(id),node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
  let sources=[],runs=[],posts=[],enabled=false;
+ const reviewEnqueuer=createReviewEnqueuer({api,user});
  const status=t=>{$('automation-status').textContent=t;};
  const runner=createRunner({api,user,status,visible:()=>!document.hidden,refresh:reload});
  const call=(path,body)=>{const owner=user();if(!owner)throw Error('승인된 팀 계정으로 로그인하세요.');return api(path,body,owner);};
  function options(id,items,label,value){const select=$(id),old=select.value;select.replaceChildren();for(const item of items){const o=node('option',label(item));o.value=value(item);select.append(o);}if([...select.options].some(o=>o.value===old))select.value=old;}
+ function showReviewSource(){
+  const d=sources.find(x=>x.id===$('automation-source').value);
+  $('automation-reviewed').checked=false;$('automation-reviewed').disabled=!d||d.status==='verified';
+  $('automation-review-preview').textContent=d?d.title+'\n출처: '+d.source_uri+'\n버전: '+d.content_hash+'\n상태: '+d.status+'\n\n'+d.body:'목록을 읽고 원문을 선택하세요.';
+ }
+ $('automation-source').onchange=showReviewSource;
  async function reload(){
   const [a,p,s,g,r]=await Promise.all([call('automation'),call('performance'),call('sources'),call('products'),call('runs')]);
   enabled=a.settings.enabled;$('automation-enabled').checked=enabled;$('automation-limit').value=a.settings.daily_limit||'';
   sources=s.items;runs=r.items.filter(x=>x.created_by===user());posts=p.posts;
-  options('automation-source',sources,x=>x.title+' · '+x.status,x=>x.id);
+  options('automation-source',sources,x=>x.title+' · '+x.status,x=>x.id);showReviewSource();
   options('automation-products',g.items,x=>x.name,x=>x.id);
   options('publication-candidate',runs.flatMap(r=>r.candidates.map((c,i)=>({r,c,i}))),x=>x.c.title,x=>x.r.id+':'+x.i);
   options('publication-pending',posts.filter(x=>x.status==='waiting'),x=>x.run_id+' · 후보 '+(x.candidate_index+1),x=>x.id);
@@ -62,6 +109,15 @@ function mount({api,user}){
   const selected=sources.find(x=>x.id===$('automation-source').value);if(selected?.status!=='verified')throw Error('사람이 검토 완료한 근거만 큐에 넣을 수 있습니다.');
   await call('automation/jobs',{source_id:selected.id,product_ids:[...$('automation-products').selectedOptions].map(x=>x.value),query:$('automation-query').value,request_id:crypto.randomUUID()});await reload();status('큐에 추가했습니다. 아직 AI를 호출하지 않았습니다.');
  });
+ $('automation-review-enqueue').onclick=()=>action(async()=>{
+  const button=$('automation-review-enqueue');if(reviewEnqueuer.isBusy())return;
+  button.disabled=true;
+  try{
+   const result=await reviewEnqueuer.submit({source:sources.find(x=>x.id===$('automation-source').value),product_ids:[...$('automation-products').selectedOptions].map(x=>x.value),query:$('automation-query').value,confirmed:$('automation-reviewed').checked});
+   const message=(result.reviewedNow?'검토 완료 후 ':'기존 검토 완료 자료를 ')+(result.reused?'기존 작업으로 확인했습니다.':'대기열에서 작업을 확인했습니다.')+' 작업 상태: '+result.job.status+'. 이 버튼은 큐 활성화·실행·AI 호출·게시를 하지 않습니다.';
+   try{await reload();status(message);}catch{status(message+' 목록 새로고침은 실패했으므로 다시 조회하세요.');}
+  }finally{button.disabled=!user();}
+ });
  $('automation-review-help').onclick=()=>action(async()=>{
   const d=sources.find(x=>x.id===$('automation-source').value);if(!d)throw Error('근거를 선택하세요.');
   $('review-help').textContent='기계 형식 점검(사실 검증 아님): 출처 '+(d.source_uri?'입력됨':'누락')+' · 본문 '+d.body.length+'자 · 상태 '+d.status+'. 출처 내용과 상품 주장 일치는 사람이 확인해야 합니다. 승인 상태는 변경하지 않았습니다.';
@@ -84,8 +140,8 @@ function mount({api,user}){
   await reload();status('수동 관측값 저장. 잠정값은 7일 확정보상에 포함하지 않습니다.');
  });
  window.addEventListener('pagehide',()=>runner.stop());window.addEventListener('offline',()=>runner.stop('오프라인으로 실행 중지'));
- function reset(){runner.stop('로그인 상태 변경으로 큐를 중지했습니다.');sources=[];runs=[];posts=[];enabled=false;for(const id of ['automation-source','automation-products','publication-candidate','publication-pending','view-publication','automation-jobs','performance-results'])$(id).replaceChildren();for(const id of ['automation-query','publication-blog','publication-log','publication-title','publication-at','view-day','view-daily','view-cumulative','view-at','automation-limit'])$(id).value='';$('automation-enabled').checked=false;$('publication-confirm').checked=false;$('view-confirm').checked=false;$('view-provisional').checked=true;$('review-help').textContent='';}
+ function reset(){runner.stop('로그인 상태 변경으로 큐를 중지했습니다.');sources=[];runs=[];posts=[];enabled=false;for(const id of ['automation-source','automation-products','publication-candidate','publication-pending','view-publication','automation-jobs','performance-results'])$(id).replaceChildren();for(const id of ['automation-query','publication-blog','publication-log','publication-title','publication-at','view-day','view-daily','view-cumulative','view-at','automation-limit'])$(id).value='';$('automation-enabled').checked=false;$('publication-confirm').checked=false;$('view-confirm').checked=false;$('view-provisional').checked=true;$('review-help').textContent='';$('automation-reviewed').checked=false;$('automation-review-preview').textContent='';}
  return {stop:runner.stop,reload,reset};
 }
-globalThis.CommerceAutomation={createRunner,mount};
+globalThis.CommerceAutomation={createRunner,createReviewEnqueuer,mount};
 })();
